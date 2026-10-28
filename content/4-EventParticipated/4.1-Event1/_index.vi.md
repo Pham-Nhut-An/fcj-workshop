@@ -75,6 +75,6 @@ pre: " <b> 4.1. </b> "
 
 #### Ảnh check-in
 
-![AWS Cloud and AI Day Hanoi 2026 – check-in tại HCMC Watch Party](/images/4-Event/event1-checkin.jpg)
+![AWS Cloud and AI Day Hanoi 2026 – check-in tại HCMC Watch Party](../../../images/4-Event/event1-checkin.jpg)
 
 *Em là người trong khung đỏ.*

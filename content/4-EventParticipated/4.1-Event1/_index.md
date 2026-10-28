@@ -75,6 +75,6 @@ This was my first large AWS event. Watching the keynote and sessions together wi
 
 #### Check-in photo
 
-![AWS Cloud and AI Day Hanoi 2026 – HCMC Watch Party check-in](/images/4-Event/event1-checkin.jpg)
+![AWS Cloud and AI Day Hanoi 2026 – HCMC Watch Party check-in](../../images/4-Event/event1-checkin.jpg)
 
 *I am in the red box.*

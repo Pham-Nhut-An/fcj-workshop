@@ -8,7 +8,7 @@ pre: " <b> 4. </b> "
 
 During my internship, I take part in at least 3 professional / community events. Each event page includes the event name, time, location, my role, key takeaways, a check-in photo and lessons learned.
 
-### [Event 1](4.1-Event1/)
+### [Event 1](4.1-event1/)
 &emsp;**Event Name:** AWS Cloud and AI Day Hanoi 2026
 
 &emsp;**Date & Time:** 07:30 – 17:00, 29/09/2026
@@ -19,10 +19,10 @@ During my internship, I take part in at least 3 professional / community events.
 
 ---
 
-### [Event 2](4.2-Event2/)
+### [Event 2](4.2-event2/)
 &emsp;Ongoing
 
 ---
 
-### [Event 3](4.3-Event3/)
+### [Event 3](4.3-event3/)
 &emsp;Ongoing

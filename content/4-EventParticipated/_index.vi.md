@@ -8,7 +8,7 @@ pre: " <b> 4. </b> "
 
 Trong kỳ thực tập, em tham gia tối thiểu 3 sự kiện chuyên môn / cộng đồng. Mỗi trang sự kiện gồm tên sự kiện, thời gian, địa điểm, vai trò, nội dung tiếp thu, ảnh check-in và bài học rút ra.
 
-### [Event 1](4.1-Event1/)
+### [Event 1](4.1-event1/)
 &emsp;**Tên sự kiện:** AWS Cloud and AI Day Hanoi 2026
 
 &emsp;**Thời gian:** 07:30 – 17:00, ngày 29/09/2026
@@ -19,10 +19,10 @@ Trong kỳ thực tập, em tham gia tối thiểu 3 sự kiện chuyên môn / 
 
 ---
 
-### [Event 2](4.2-Event2/)
+### [Event 2](4.2-event2/)
 &emsp;Đang thực hiện
 
 ---
 
-### [Event 3](4.3-Event3/)
+### [Event 3](4.3-event3/)
 &emsp;Đang thực hiện
