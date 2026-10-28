@@ -6,6 +6,23 @@ chapter: false
 pre: " <b> 4. </b> "
 ---
 
-At least 3 professional / community events, each with event name, time, location, role, key takeaways, a clear check-in photo, and lessons learned.
+During my internship, I take part in at least 3 professional / community events. Each event page includes the event name, time, location, my role, key takeaways, a check-in photo and lessons learned.
 
-{{% children  /%}}
+### [Event 1](4.1-Event1/)
+&emsp;**Event Name:** AWS Cloud and AI Day Hanoi 2026
+
+&emsp;**Date & Time:** 07:30 – 17:00, 29/09/2026
+
+&emsp;**Location:** JW Marriott Hotel Hanoi (attended via the HCMC Watch Party at the AWS Vietnam office, Ho Chi Minh City)
+
+&emsp;**Role:** Attendee
+
+---
+
+### [Event 2](4.2-Event2/)
+&emsp;Ongoing
+
+---
+
+### [Event 3](4.3-Event3/)
+&emsp;Ongoing
