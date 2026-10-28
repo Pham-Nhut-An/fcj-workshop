@@ -1,0 +1,14 @@
+<div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="{{T "Search-placeholder"}}">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+{{ $assetBusting := not .Site.Params.disableAssetsBusting }}
+<script type="text/javascript" src="{{"js/lunr.min.js" | relURL}}{{ if $assetBusting }}?{{ now.Unix }}{{ end }}"></script>
+<script type="text/javascript" src="{{"js/auto-complete.js" | relURL}}{{ if $assetBusting }}?{{ now.Unix }}{{ end }}"></script>
+<script type="text/javascript">
+    // Works on any sub-path (e.g. GitHub Pages /repo-name/): derive the site root from this script's URL
+    var _s = document.querySelector('script[src*="js/auto-complete.js"]').src;
+    var baseurl = _s.substring(0, _s.indexOf('js/auto-complete.js')) + "{{ strings.TrimPrefix "/" .Site.LanguagePrefix }}" + "{{ if .Site.LanguagePrefix }}/{{ end }}";
+</script>
+<script type="text/javascript" src="{{"js/search.js" | relURL}}{{ if $assetBusting }}?{{ now.Unix }}{{ end }}"></script>
