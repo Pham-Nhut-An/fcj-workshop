@@ -20,7 +20,13 @@ Trong kỳ thực tập, em tham gia tối thiểu 3 sự kiện chuyên môn / 
 ---
 
 ### [Event 2](4.2-event2/)
-&emsp;Đang thực hiện
+&emsp;**Tên sự kiện:** FCAJ Community Day
+
+&emsp;**Thời gian:** 09:00 – 12:00, ngày 31/10/2026
+
+&emsp;**Địa điểm:** Văn phòng AWS Việt Nam, Bitexco Financial Tower, 2 Hải Triều, Phường Sài Gòn, TP. Hồ Chí Minh
+
+&emsp;**Vai trò:** Người tham dự
 
 ---
 

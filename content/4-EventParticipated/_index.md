@@ -20,7 +20,13 @@ During my internship, I take part in at least 3 professional / community events.
 ---
 
 ### [Event 2](4.2-event2/)
-&emsp;Ongoing
+&emsp;**Event Name:** FCAJ Community Day
+
+&emsp;**Date & Time:** 09:00 – 12:00, 31/10/2026
+
+&emsp;**Location:** AWS Vietnam office, Bitexco Financial Tower, 2 Hai Trieu Street, Sai Gon Ward, Ho Chi Minh City
+
+&emsp;**Role:** Attendee
 
 ---
 

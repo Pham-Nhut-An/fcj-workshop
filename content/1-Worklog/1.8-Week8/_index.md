@@ -8,20 +8,20 @@ pre: " <b> 1.8. </b> "
 
 ### Week 8 Objectives:
 
-* Learn Infrastructure as Code (CloudFormation, CDK, SAM) and CI/CD pipelines.
-* Participate in Community Event #1.
+* Learn Infrastructure as Code (CloudFormation, SAM) and CI/CD pipelines.
+* Finish and publish Technical Blog #2.
 
 ### Tasks to be carried out this week:
 | Day | Task | Start Date | Completion Date | Reference Material |
 | --- | --- | --- | --- | --- |
-| 2 | - Learn Infrastructure as Code (IaC) with AWS CloudFormation: <br> &emsp; + Template syntax (JSON/YAML), Parameters, Resources, Outputs, Intrinsic Functions <br> &emsp; + CloudFormation Stacks, Nested Stacks, and Drift Detection. | 02/11/2026 | Ongoing | <https://cloudjourney.awsstudygroup.com/> |
-| 3 | - Learn AWS Cloud Development Kit (AWS CDK): <br> &emsp; + CDK Core Concepts: App, Stack, Constructs (L1, L2, L3) <br> &emsp; + Writing CDK code in TypeScript/Python <br> &emsp; + CDK CLI commands (`cdk init`, `cdk synth`, `cdk diff`, `cdk deploy`). | 03/11/2026 | Ongoing | <https://cloudjourney.awsstudygroup.com/> |
-| 4 | - Learn AWS Serverless Application Model (AWS SAM): <br> &emsp; + SAM Template specifications (`AWS::Serverless::Function`, `SimpleTable`) <br> &emsp; + SAM CLI local emulation and automated packaging/deployment. | 04/11/2026 | Ongoing | <https://cloudjourney.awsstudygroup.com/> |
-| 5 | - Learn AWS DevOps CI/CD Services: <br> &emsp; + AWS CodePipeline for continuous delivery orchestration <br> &emsp; + AWS CodeBuild for automated unit testing & artifact build (`buildspec.yml`) <br> &emsp; + AWS CodeDeploy for automated rolling and blue/green deployments. | 05/11/2026 | Ongoing | <https://cloudjourney.awsstudygroup.com/> |
-| 6 | - Participate in Community Event #1: <br> &emsp; + Event: 'AWS Cloud & DevOps Community Meetup / FCAJ Tech Talk 1' <br> &emsp; + Attend technical presentations on modern CI/CD & IaC best practices <br> &emsp; + Write summary notes and key takeaways for the OJT event report. | 06/11/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
+| 2 | - Learn Infrastructure as Code (IaC) with AWS CloudFormation (theory): <br> &emsp; + Template syntax (JSON/YAML), Parameters, Resources, Outputs <br> &emsp; + CloudFormation Stacks. | 02/11/2026 | 02/11/2026 | <https://cloudjourney.awsstudygroup.com/> |
+| 3 | - Learn AWS Serverless Application Model (AWS SAM) (theory): <br> &emsp; + SAM Template (`AWS::Serverless::Function`) <br> &emsp; + SAM CLI commands (`sam build`, `sam deploy`). | 03/11/2026 | 03/11/2026 | <https://cloudjourney.awsstudygroup.com/> |
+| 4 | - Write the Event 2 report page (FCAJ Community Day) on the internship report website. <br> - Update the worklog for Week 7 and Week 8. | 04/11/2026 | 04/11/2026 | - |
+| 5 | - Learn AWS DevOps CI/CD Services: <br> &emsp; + AWS CodePipeline for continuous delivery orchestration <br> &emsp; + AWS CodeBuild for automated unit testing & artifact build (`buildspec.yml`) | 05/11/2026 | Ongoing | <https://cloudjourney.awsstudygroup.com/> |
+| 6 | - Finish and publish Technical Blog #2 on AWS Study Group. | 06/11/2026 | Ongoing | - |
 
 ### Week 8 Achievements:
 
-* Ongoing
-* Ongoing
+* Learned the basic concepts of CloudFormation templates and AWS SAM (theory only, hands-on practice pending).
+* Wrote the Event 2 report page on the internship report website.
 * Ongoing

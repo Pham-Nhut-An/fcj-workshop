@@ -14,13 +14,13 @@ This worklog records what I learned and did during the 12-week First Cloud AI Jo
 
 **Week 3:** [Databases (RDS, DynamoDB), caching & load balancing](1.3-week3/)
 
-**Week 4:** [Route 53, CloudFront & workshop topic research](1.4-week4/)
+**Week 4:** [Amazon Route 53 & Amazon CloudFront](1.4-week4/)
 
 **Week 5:** [AWS Well-Architected Security Pillar](1.5-week5/)
 
 **Week 6:** [Observability, AWS Lambda & API Gateway](1.6-week6/)
 
-**Week 7:** [Event-driven architecture & Amazon Cognito](1.7-week7/)
+**Week 7:** [Event-driven theory & Proposal](1.7-week7/)
 
 **Week 8:** [Infrastructure as Code & CI/CD](1.8-week8/)
 
