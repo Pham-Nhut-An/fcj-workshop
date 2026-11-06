@@ -8,7 +8,7 @@ pre: " <b> 3.3. </b> "
 
 # Lambda, SQS and EventBridge now support payloads up to 1 MB
 
-**Posted on:** AWS Study Group VN (Facebook) – 06/11/2026
+**Posted on:** AWS Study Group VN (Facebook) – 06/11/2026 – <https://www.facebook.com/groups/awsstudygroupfcj/posts/2328192347945724/>
 
 In **event-driven** architecture, services exchange data through a **payload** (the data attached to a message or event). The old limit was 256 KB, so large data such as LLM prompts, telemetry or ML output had to be split, compressed or stored in S3.
 

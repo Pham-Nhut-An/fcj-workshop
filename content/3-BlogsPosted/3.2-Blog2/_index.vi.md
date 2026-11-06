@@ -8,7 +8,7 @@ pre: " <b> 3.2. </b> "
 
 # Chọn vector store nào cho Amazon Bedrock Knowledge Bases?
 
-**Đăng trên:** AWS Study Group VN (Facebook) – 06/11/2026
+**Đăng trên:** AWS Study Group VN (Facebook) – 06/11/2026 – <https://www.facebook.com/groups/awsstudygroupfcj/posts/2328194534612172/>
 
 Khi xây **RAG (Retrieval-Augmented Generation – sinh câu trả lời có tăng cường truy xuất)** trên Bedrock, câu hỏi đầu tiên là lưu vector ở đâu. Bài blog so sánh 3 lựa chọn:
 
