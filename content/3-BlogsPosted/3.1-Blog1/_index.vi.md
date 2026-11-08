@@ -8,7 +8,7 @@ pre: " <b> 3.1. </b> "
 
 # Xử lý tài liệu tự cải thiện với Amazon Bedrock AgentCore
 
-**Đăng trên:** AWS Study Group VN (Facebook) – 06/11/2026 – <https://www.facebook.com/groups/awsstudygroupfcj/posts/2328196167945342/>
+**Đăng trên:** AWS Study Group VN (Facebook) – 06/11/2026 – <https://www.facebook.com/groups/awsstudygroupfcj/posts/2328192347945724/>
 
 ![Kiến trúc giải pháp xử lý tài liệu tự cải thiện với Amazon Bedrock AgentCore](../../../images/3-Blog/blog1-architecture.png)
 
