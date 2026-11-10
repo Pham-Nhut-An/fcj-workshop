@@ -1,111 +1,118 @@
 ---
 title: "Proposal"
-date: 2026-10-28
+date: 2026-11-06
 weight: 2
 chapter: false
 pre: " <b> 2. </b> "
 ---
 
-# SmartDoc – AI-Powered Invoice Processing on AWS Serverless
+# ImageGuard – AI-Powered Image Moderation and Labeling on AWS Serverless
 
 {{% notice info %}}
-**Status:** Proposal v1.0 (28/10/2026). The official architecture diagram will be drawn by the team in draw.io using the AWS Architecture Icons and added to Section 4.
+**Status:** Proposal v2.0 (06/11/2026). Version 1.0 (28/10/2026) used Amazon Bedrock for invoice processing; the team changed direction because the account's Bedrock quota is restricted (see Section 4.5). The official architecture diagram will be drawn by the team in draw.io using the AWS Architecture Icons and added to Section 4.
 {{% /notice %}}
 
 ## 1. Overview
 
-**SmartDoc** is a serverless web application that helps small businesses, shops, student groups and individuals **digitize paper invoices and receipts from a single photo**. A user signs in and uploads a photo of an invoice. The system then uses the multimodal AI model **Amazon Nova Lite** on **Amazon Bedrock** to read the content, extract key fields (vendor, date, total, tax, line items), **classify** the expense (food, transport, office supplies, …) and write a short **summary**. Results are stored in **Amazon DynamoDB** and shown back in the web UI within seconds.
+**ImageGuard** is a serverless web application that helps classified-ad sites, forums and student clubs **automatically moderate and categorize images uploaded by users**. When a user uploads a photo, the system uses the computer-vision AI service **Amazon Rekognition** to:
 
-The whole system follows an **event-driven**, **serverless** architecture: there are no servers to manage, and the team pays only for actual usage.
+1. **Moderate:** detect inappropriate content (violence, explicit content, weapons, drugs, …). Violating images are marked `REJECTED` and an administrator receives an email alert.
+2. **Label:** for valid images, automatically generate labels that describe the content (for example *Laptop*, *Bicycle*, *Book*) so users can **search their images by label**.
+
+Results are stored in **Amazon DynamoDB** and shown in the web UI within seconds. The whole system follows an **event-driven**, **serverless** architecture: there are no servers to manage, and the team pays only for actual usage.
 
 ## 2. Problem Statement
 
-- Small businesses and individuals still receive many **paper invoices and receipts** (restaurants, supermarkets, taxis, office supplies). Typing each one into Excel by hand is slow and error-prone, and paper receipts are easily lost.
-- Traditional OCR tools return only **raw text**, so users still have to find the total and the date and categorize each expense themselves.
-- Invoices in Vietnam are mostly in **Vietnamese with diacritics** and come in many layouts, so a fixed template does not work well.
+- Platforms that let users post images (classified ads, forums, community groups) receive many images every day. **Manual review** is labor-intensive and slow, and it exposes reviewers directly to harmful content.
+- Without moderation, violating images can appear publicly and harm users and the platform's reputation.
+- User-uploaded images usually have **no description or tags**, so they are hard to find again.
 
-**Solution:** use a multimodal AI model that *reads* and *understands* an invoice in one step and returns structured data (JSON) for storage, search and reporting.
+**Solution:** automate both tasks with AI as soon as an image is uploaded. Violating images are blocked before they are displayed; valid images are labeled for search.
 
 ## 3. Objectives & Scope
 
 ### 3.1. Objectives
 
-1. Build an automated pipeline, **Upload → AI extraction → Storage → Display**, that runs entirely on AWS.
+1. Build an automated pipeline, **Upload → AI moderation → AI labeling → Storage → Display/Search**, that runs entirely on AWS.
 2. Apply the **AWS Well-Architected Framework**, especially the **Security** pillar (IAM least privilege, no public resources, no hard-coded credentials).
 3. Provide full observability with **Amazon CloudWatch** (Logs, Metrics, Alarms) and email alerts through **Amazon SNS**.
-4. Keep operating cost **below USD 2/month** under a realistic workload (Section 6).
+4. Keep operating cost at **about USD 6–7/month** under a realistic workload (Section 6).
 5. Write a **bilingual step-by-step guide** that lets others reproduce the deployment.
 
 ### 3.2. Success Criteria
 
 | Criterion | Target |
 |---|---|
-| End-to-end processing time per invoice (upload → result) | ≤ 15 seconds |
-| Extraction accuracy for **total** and **date** on a 30-invoice test set | ≥ 85% |
+| End-to-end processing time per image (upload → result) | ≤ 10 seconds |
+| Violating images correctly blocked on the test set | ≥ 90% |
+| Valid images wrongly blocked (false positives) on the test set | ≤ 10% |
 | API calls without signing in | Rejected (HTTP 401) |
-| User A reading User B's data | Not possible |
-| Processing errors (corrupt image, malformed AI output) | Logged, marked `FAILED`, email alert sent |
+| User A reading User B's images or results | Not possible |
+| Violating image detected | Email alert sent to the administrator |
 | Direct Internet access to S3 buckets | Blocked (Block Public Access) |
 
 ### 3.3. Scope
 
 | In scope | Out of scope |
 |---|---|
-| **Single-page** invoice/receipt images (JPG/PNG, ≤ 5 MB) | Multi-page PDFs |
-| Key-field extraction, classification, summary | Integration with accounting software or e-invoices (XML) |
-| Sign-up/sign-in with Amazon Cognito | Multiple roles (admin, accountant, …) |
-| List and detail views of the user's own invoices | Advanced reporting, Excel export |
+| JPG/PNG images, ≤ 5 MB | Video, animated GIFs |
+| Content moderation + automatic labeling | **Face recognition** (biometric data, privacy-sensitive) |
+| Label search within the user's own images | Full-text search across the whole system |
+| Sign-up/sign-in with Amazon Cognito | Dedicated admin UI, appeals against moderation results |
 | Single Region: **us-east-1** | Multi-Region, disaster recovery |
 
 ## 4. Solution Architecture
 
 <!-- When the diagram is ready, save it to static/images/2-proposal/architecture.png and uncomment the line below:
-![SmartDoc Architecture](../images/2-proposal/architecture.png)
+![ImageGuard Architecture](../images/2-proposal/architecture.png)
 -->
 
 ### 4.1. AWS Services and Rationale
 
 | Service | Role in the system | Why it was chosen |
 |---|---|---|
-| **Amazon S3** | (1) Stores invoice images (private bucket); (2) hosts the static website | 99.999999999% durability, low cost, emits **S3 Events** to trigger processing |
+| **Amazon S3** | (1) Stores user images (private bucket); (2) hosts the static website | 99.999999999% durability, low cost, emits **S3 Events** to trigger processing |
 | **Amazon CloudFront** | Serves the static site over HTTPS and reads S3 through **Origin Access Control (OAC)** | The website bucket stays private; free HTTPS; covered by the Always Free tier (1 TB/month) |
 | **Amazon Cognito** (User Pool) | Sign-up, sign-in, issues **JWT tokens** | Managed identity, free up to 10,000 MAU, the app never stores passwords |
 | **Amazon API Gateway** (HTTP API) | REST endpoints for the web app, protected by a Cognito **JWT authorizer** | Cheaper than REST APIs (~USD 1 per million requests), native Cognito integration |
-| **AWS Lambda** (Python 3.12) | Three functions: `presign-upload`, `process-document`, `get-documents` | Serverless, pay per invocation, scales automatically |
-| **Amazon Bedrock** – Amazon Nova Lite | Reads the invoice image, extracts JSON, classifies, summarizes | Multimodal (accepts images), very low price (USD 0.06 per 1M input tokens), available in-Region in us-east-1 |
-| **Amazon DynamoDB** (On-demand) | Stores extraction results per user | Serverless NoSQL, pay per request, low latency, 25 GB free |
+| **AWS Lambda** (Python 3.12) | Three functions: `presign-upload`, `process-image`, `get-images` | Serverless, pay per invocation, scales automatically |
+| **Amazon Rekognition** | `DetectModerationLabels` (moderation) and `DetectLabels` (labeling) | Pre-trained AI, no model training needed; reads images directly from S3; available on the Free plan |
+| **Amazon DynamoDB** (On-demand) | Stores moderation results and labels per user | Serverless NoSQL, pay per request, low latency, 25 GB free |
 | **Amazon SQS** | **Dead-Letter Queue (DLQ)** for failed processing events | No data loss on failure; events can be reprocessed |
 | **Amazon CloudWatch** | Logs, metrics (built-in + custom), alarms, dashboard | Centralized monitoring, required by the workshop |
-| **Amazon SNS** | Sends email when an alarm fires | Simple; 1,000 emails/month free |
+| **Amazon SNS** | Sends email when a violating image is found and when an alarm fires | Simple; 1,000 emails/month free |
 | **AWS IAM** | One dedicated least-privilege IAM role per Lambda function | Security foundation of the whole system |
 
-> **Why not Amazon Textract?** The team first planned to use Textract for OCR, but research showed that (1) on a new AWS account on the **Free plan**, Textract is only available after upgrading to the **Paid plan**, and (2) Textract does not support Vietnamese, while most invoices in Vietnam are in Vietnamese. The multimodal Nova Lite model handles both reading and understanding, so the architecture is simpler and cheaper.
+**Why Region us-east-1:** prices are usually the lowest among Regions and all required services are available. The ~200 ms latency from Vietnam has little impact, because the static site is served through CloudFront (with edge locations in Hanoi and Ho Chi Minh City) and the slowest step is AI image analysis anyway. For a real deployment serving Vietnamese users, the team would consider moving to Singapore (ap-southeast-1) to reduce latency and meet personal-data regulations; Region and resource names are environment variables, so no code changes are needed.
 
 ### 4.2. Data Flow
 
 1. The user opens the website through **CloudFront**, signs in with **Cognito** and receives a JWT token.
 2. The web app calls `POST /upload-url` on **API Gateway** with the token. API Gateway validates the token with the JWT authorizer and invokes the **`presign-upload`** Lambda.
-3. `presign-upload` creates a `PENDING` record in DynamoDB and returns a **presigned URL** (a temporary upload link that expires after 5 minutes) for the key `uploads/{userId}/{documentId}.jpg`.
+3. `presign-upload` creates a `PENDING` record in DynamoDB and returns a **presigned URL** (a temporary upload link that expires after 5 minutes) for the key `uploads/{userId}/{imageId}.jpg`.
 4. The browser uploads the image **directly to S3** with the presigned URL, so the image never passes through Lambda or API Gateway.
-5. S3 emits an **ObjectCreated** event (only for the `uploads/` prefix), which asynchronously invokes the **`process-document`** Lambda.
-6. `process-document` reads the image from S3, calls the **Bedrock Converse API** with Nova Lite and a prompt that asks for JSON output, validates the JSON, and updates DynamoDB to `DONE` (or `FAILED` on error).
+5. S3 emits an **ObjectCreated** event (only for the `uploads/` prefix), which asynchronously invokes the **`process-image`** Lambda.
+6. `process-image` calls **Rekognition `DetectModerationLabels`** (Rekognition reads the image directly from S3):
+   - If a label from a blocked category is found with confidence ≥ 60%, the record is updated to `REJECTED` (with the reason) and an email is sent through **SNS**.
+   - Otherwise it calls **`DetectLabels`** (up to 10 labels, confidence ≥ 80%) and updates the record to `APPROVED` with the label list.
 7. If the Lambda still fails after 2 retries, the event is sent to the **SQS DLQ**.
-8. The web app calls `GET /documents`. The **`get-documents`** Lambda queries DynamoDB **only by the `userId` taken from the token** and returns the results.
+8. The web app calls `GET /images?label=...`. The **`get-images`** Lambda queries DynamoDB **only by the `userId` taken from the token**, filters by label if given, and returns the results. Images are displayed through short-lived **presigned GET URLs**, never made public.
 9. Every Lambda writes logs and metrics to **CloudWatch**; alarms send emails through **SNS** when errors occur.
 
 ### 4.3. Security Design (Security Pillar)
 
-| Principle | How SmartDoc applies it |
+| Principle | How ImageGuard applies it |
 |---|---|
-| **Least privilege** | Each Lambda has its own role. For example, `process-document` may only call `s3:GetObject` on `uploads/*`, `bedrock:InvokeModel` on **exactly one** Nova Lite model and `dynamodb:UpdateItem` on **exactly one** table. `presign-upload` may only call `s3:PutObject` on `uploads/*`. No `*` in actions or resources |
-| **No public resources** | Both buckets have **Block Public Access** enabled. The website bucket is readable only by CloudFront via OAC. The image bucket accepts uploads only through short-lived presigned URLs |
+| **Least privilege** | Each Lambda has its own role. `process-image` may only call `s3:GetObject` on `uploads/*`, `rekognition:DetectModerationLabels` + `rekognition:DetectLabels`, `dynamodb:UpdateItem` on **exactly one** table and `sns:Publish` to **exactly one** topic. `presign-upload` may only call `s3:PutObject` on `uploads/*` and `dynamodb:PutItem`. `get-images` may only call `dynamodb:Query` and `s3:GetObject` |
+| **Rekognition limitation** | Rekognition's image-analysis APIs **do not support resource-level permissions**, so `"Resource": "*"` is required. The team compensates by allowing **exactly the 2 actions** needed, never `rekognition:*` |
+| **No public resources** | Both buckets have **Block Public Access** enabled. The website bucket is readable only by CloudFront via OAC. The image bucket accepts and serves images only through short-lived presigned URLs |
 | **Authentication & data isolation** | Every API requires a Cognito JWT. `userId` always comes from the token's `sub` claim, **never** from client input, so users cannot read each other's data |
-| **No hard-coded credentials** | Lambdas use IAM roles (temporary credentials issued by AWS). Bucket, table and model names are passed as **environment variables**. The GitHub repository contains no access keys and has a `.gitignore` |
+| **No hard-coded credentials** | Lambdas use IAM roles (temporary credentials issued by AWS). Bucket, table and topic names are passed as **environment variables**. The GitHub repository contains no access keys and has a `.gitignore` |
 | **Encryption** | S3 and DynamoDB encrypt data at rest by default; all traffic uses HTTPS/TLS |
-| **Input protection** | Presigned URLs restrict the image `Content-Type`; the Lambda rejects files > 5 MB; AI output is validated before it is stored |
-| **AI data privacy** | According to AWS documentation, Bedrock does not use customer prompts or outputs to train models |
+| **Input protection** | Presigned URLs restrict the image `Content-Type`; the Lambda checks size (≤ 5 MB) and format before calling the AI |
+| **Privacy** | No face recognition features are used; no biometric data is stored |
 
-> **Why are the Lambdas not placed in a VPC/private subnet?** The system has no database or server that needs a private network. The Lambdas reach S3, DynamoDB and Bedrock over HTTPS, authenticated by IAM. Putting them in a VPC would add NAT Gateway or interface VPC endpoint charges (tens of USD per month) without a meaningful security gain for this architecture. The team lists it as a future extension if compliance requires it.
+> **Why are the Lambdas not placed in a VPC/private subnet?** The system has no database or server that needs a private network. The Lambdas reach S3, DynamoDB, Rekognition and SNS over HTTPS, authenticated by IAM. Putting them in a VPC would add NAT Gateway or interface VPC endpoint charges (tens of USD per month) without a meaningful security gain for this architecture. The team lists it as a future extension if compliance requires it.
 
 ### 4.4. Mapping to the AWS Well-Architected Framework
 
@@ -113,10 +120,21 @@ The whole system follows an **event-driven**, **serverless** architecture: there
 |---|---|
 | Operational Excellence | CloudWatch Logs (14-day retention), dashboard, alarms; a reproducible deployment guide |
 | Security | See Section 4.3 |
-| Reliability | Event-driven design; Lambda retries twice automatically; the DLQ keeps failed events; clear `PENDING/DONE/FAILED` states |
-| Performance Efficiency | Direct-to-S3 uploads with presigned URLs; a small, fast model (Nova Lite); key-based DynamoDB queries |
-| Cost Optimization | 100% serverless, pay per use; S3 Lifecycle deletes images after 30 days; 14-day log retention; AWS Budgets alerts |
-| Sustainability | No idle resources; compute is used only when an invoice needs processing |
+| Reliability | Event-driven design; Lambda retries twice automatically; the DLQ keeps failed events; clear `PENDING/APPROVED/REJECTED/FAILED` states |
+| Performance Efficiency | Direct-to-S3 uploads with presigned URLs; Rekognition reads images straight from S3 (the Lambda never downloads them); key-based DynamoDB queries |
+| Cost Optimization | 100% serverless, pay per use; **`DetectLabels` is called only after an image passes moderation**; S3 Lifecycle; 14-day log retention; AWS Budgets |
+| Sustainability | No idle resources; compute is used only when an image needs processing |
+
+### 4.5. How the AI Service Was Chosen
+
+| Date | Event | Decision |
+|---|---|---|
+| 28/10/2026 | Proposal v1.0: invoice processing with **Amazon Bedrock (Nova Lite)** | Bedrock chosen for Vietnamese support and low cost |
+| 28/10/2026 | Testing in the Bedrock playground returned `ThrottlingException`; the Quotas page showed **TPM = 0, RPM = 0** | Identified an account-level quota issue, not an IAM issue |
+| 05–06/11/2026 | Quota increase request via Service Quotas was **denied** ("Accessibility is subject to change automatically as time passes"). The other members' accounts also had a quota of 0 | Bedrock not feasible within the remaining time |
+| 06/11/2026 | Free plan service list checked: Textract is Paid-plan only; **Rekognition is available**. Label detection tested successfully in the console | **Switched to Rekognition**, keeping ~90% of the architecture (S3, Lambda, DynamoDB, API Gateway, Cognito, CloudFront, CloudWatch) |
+
+Lesson learned: **check quotas and service availability at the very start**, and design loosely coupled architectures so that one component can be replaced without rebuilding everything.
 
 ## 5. Plan & Timeline
 
@@ -127,8 +145,8 @@ Internship period: 14/09/2026 – 04/12/2026. Planned workshop submission deadli
 | Member | Main responsibility |
 |---|---|
 | Member A | Team lead, integration, IAM & security |
-| Member B | `process-document` Lambda, Bedrock prompt, accuracy evaluation |
-| Member C | Cognito, API Gateway, `presign-upload` and `get-documents` Lambdas |
+| Member B | `process-image` Lambda, Rekognition integration, test image set and accuracy evaluation |
+| Member C | Cognito, API Gateway, `presign-upload` and `get-images` Lambdas |
 | Member D | Static web UI, S3 + CloudFront (OAC) |
 | Member E | CloudWatch, SNS, DLQ, cost estimation, clean-up guide |
 
@@ -138,58 +156,60 @@ Internship period: 14/09/2026 – 04/12/2026. Planned workshop submission deadli
 
 | Internship week | Dates | Tasks | Output |
 |---|---|---|---|
-| Week 7 | 28/10 – 01/11 | Finalize topic and write the proposal; test Nova Lite in the Bedrock playground with 10 sample invoices; collect 30 test invoices; sketch the architecture diagram | Proposal, prompt v1, test dataset |
-| Week 8 | 02/11 – 08/11 | Create S3, DynamoDB and IAM roles; build the `process-document` Lambda + S3 event; create Cognito, API Gateway and the two API Lambdas | Backend pipeline working via CLI/Postman |
-| Week 9 | 09/11 – 15/11 | Build the static site + CloudFront; CloudWatch metrics/alarms/dashboard, SNS, DLQ; testing (valid, invalid, error and load cases); AWS Pricing Calculator estimate; record the demo video | End-to-end demo, video, cost table |
+| Week 7 | 26/10 – 01/11 | Finalize topic, write proposal v1.0; test Bedrock, discover the zero quota | Proposal v1.0, incident notes |
+| Week 8 | 02/11 – 08/11 | Request a quota increase (denied); switch to Rekognition, write proposal v2.0; create S3, DynamoDB, IAM roles; build the `process-image` Lambda + S3 event | Proposal v2.0, working image pipeline |
+| Week 9 | 09/11 – 15/11 | Cognito, API Gateway, the two API Lambdas; static site + CloudFront; CloudWatch metrics/alarms/dashboard, SNS, DLQ; testing; AWS Pricing Calculator; record the demo video | End-to-end demo, video, cost table |
 | Week 10 | 16/11 – 19/11 | Write the bilingual 5-Workshop section (step-by-step, testing, clean-up), take screenshots, finalize the diagram, peer review | **Submit workshop on 19/11** |
 | Week 10–12 | 20/11 – 04/12 | Apply mentor feedback, finish blogs and worklogs, clean up resources | Final report |
 
 ## 6. Cost Estimation
 
-**Workload scenario:** a small shop processes about **3,000 invoices/month** (~100/day), with 1 MB images on average and about 30,000 list/detail views per month. Region **us-east-1**, on-demand prices, **before Free Tier/credits**.
+**Workload scenario:** a small forum/classified-ad site receives about **3,000 images/month** (~100/day), 1 MB on average, about 3% violating, and about 30,000 views/searches per month. Region **us-east-1**, on-demand prices, **before Free Tier/credits**.
 
 | Service | Assumptions | Estimated cost (USD/month) |
 |---|---|---|
-| Amazon Bedrock (Nova Lite) | 3,000 calls × (~2,000 input + ~500 output tokens) | 0.72 |
-| AWS Lambda | 36,000 invocations, ~16,650 GB-seconds | 0.28 (within the 400,000 GB-s free tier) |
+| Amazon Rekognition | 3,000 `DetectModerationLabels` + ~2,910 `DetectLabels` calls × USD 0.001/image | 5.91 |
+| AWS Lambda | 36,000 invocations, ~3,200 GB-seconds | 0.06 (within the free tier) |
 | Amazon API Gateway (HTTP API) | 33,000 requests | 0.03 |
-| Amazon DynamoDB (On-demand) | 12,000 WRU + 30,000 RRU, < 1 GB | 0.01 |
-| Amazon S3 | 3 GB (30-day lifecycle), 3,000 PUT/GET | 0.09 |
+| Amazon DynamoDB (On-demand) | ~6,000 WRU + 30,000 RRU, < 1 GB | 0.01 |
+| Amazon S3 | 3 GB (30-day lifecycle), 3,000 PUT, 6,000 GET | 0.09 |
 | Amazon CloudWatch | 0.5 GB logs, 3 alarms, 3 custom metrics, 1 dashboard | 0.27 (mostly within the free tier) |
 | Amazon CloudFront | ~2 GB transfer, 40,000 requests | 0.00 (Always Free) |
 | Amazon Cognito | < 10,000 MAU | 0.00 |
-| Amazon SNS, Amazon SQS | A few dozen emails/messages | 0.00 |
-| **Total** | | **≈ USD 1.40/month (≈ USD 17/year)** |
+| Amazon SNS, Amazon SQS | About 100 emails/messages | 0.00 |
+| **Total** | | **≈ USD 6.40/month (≈ USD 76/year)** |
 
-During development and the demo (fewer than 300 invoices expected), Bedrock costs only about USD 0.07, and everything is covered by the USD 200 credit of a new account.
+During development and the demo (fewer than 300 images expected), Rekognition costs only about USD 0.60, and everything is covered by the account's credits.
 
 *AWS Pricing Calculator link:* `[to be added after the estimate is created]`
 
 ### Cost Optimization Strategy
 
 - **100% serverless** architecture: no EC2, NAT Gateway or always-on resources.
-- Use **Nova Lite** instead of a larger model; cap output `maxTokens`; resize images before upload (max ~1,400 px) to reduce tokens.
-- **S3 Lifecycle policy** deletes original images after 30 days (extracted data stays in DynamoDB).
+- **Moderate first, label second:** violating images skip `DetectLabels`, saving one API call per blocked image.
+- Rekognition **reads images directly from S3**, so the Lambda runs briefly (~2 seconds) with little memory (256 MB).
+- **S3 Lifecycle policy** deletes images after 30 days (or moves them to S3 Glacier if long-term retention is needed).
 - **14-day CloudWatch Logs retention** instead of the default "Never expire".
 - **HTTP API** instead of REST API (about 70% cheaper).
-- **AWS Budgets** alert at USD 5; run the **clean-up** right after grading.
+- **AWS Budgets** alert at USD 10; run the **clean-up** right after grading.
+- Above 1 million images/month, Rekognition's tiered pricing lowers the per-image cost automatically.
 
 ## 7. Risks & Mitigation
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| Nova Lite misreads Vietnamese diacritics or blurry photos | Wrong extraction | Test 10 images in Week 7; improve the prompt; if still poor, switch to Nova Pro (same API, only the model ID changes) |
-| AI returns malformed JSON | Lambda failure | Validate the JSON and retry once; otherwise mark `FAILED` and log it |
-| Low Bedrock quotas on a new account | Throttling during the demo | Check Service Quotas early; retry with backoff; demo with moderate load |
+| Rekognition blocks valid images or misses violating ones | Poor user experience or harmful content slips through | Confidence threshold and blocked categories are environment variables that can be tuned; accuracy measured on the test set |
+| Service quotas on new accounts (already happened with Bedrock) | AI calls fail | Rekognition verified to work on the account; retry with backoff on throttling |
 | Recursive S3 → Lambda → S3 trigger | Runaway cost | Trigger only on the `uploads/` prefix; the Lambda never writes back to S3 |
 | Access keys leaked to GitHub | Account compromise | Use IAM roles only; `.gitignore`; review before every commit |
-| Unexpected charges | Credit loss | AWS Budgets + Free plan; clean-up checklist |
-| Limited time (~3 weeks) | Missing the deadline | Build the MVP first, extras later; every week has a clear deliverable |
+| Test images that infringe copyright or are too disturbing | Legal and ethical issues | Use the team's own photos or freely licensed images; test moderation with mild categories (alcohol, tobacco, toy weapons) |
+| Unexpected charges | Credit loss | AWS Budgets; clean-up checklist |
+| Limited time (~2 weeks) | Missing the deadline | Build the MVP first, extras later; every week has a clear deliverable |
 | Members are still new to AWS | Delays; cannot answer the mentor's questions | Learn while building; peer reviews; every member explains the full architecture |
 
 ## 8. Expected Outcomes
 
-- A working web application: sign in → upload an invoice photo → see the extracted fields, category and summary.
+- A working web application: sign in → upload an image → violating images are blocked with an email alert, valid images are labeled and searchable.
 - A monitoring setup with a CloudWatch dashboard, alarms and email alerts.
-- A bilingual workshop guide that can be reproduced from scratch, including testing and clean-up.
-- Hands-on skills for the team: event-driven serverless architecture, IAM least privilege, generative AI on Amazon Bedrock, monitoring and cost optimization on AWS.
+- A bilingual workshop guide that can be reproduced from scratch, including testing, troubleshooting and clean-up.
+- Hands-on skills for the team: event-driven serverless architecture, IAM least privilege, AWS AI services, monitoring and cost optimization, and how to adapt when a service is quota-restricted.
