@@ -9,7 +9,7 @@ pre: " <b> 2. </b> "
 # ImageGuard – AI-Powered Image Moderation and Labeling on AWS Serverless
 
 {{% notice info %}}
-**Status:** Proposal v2.0 (06/11/2026). Version 1.0 (28/10/2026) used Amazon Bedrock for invoice processing; the team changed direction because the account's Bedrock quota is restricted (see Section 4.5). The official architecture diagram will be drawn by the team in draw.io using the AWS Architecture Icons and added to Section 4.
+**Status:** Proposal v2.0.
 {{% /notice %}}
 
 ## 1. Overview
@@ -63,9 +63,9 @@ Results are stored in **Amazon DynamoDB** and shown in the web UI within seconds
 
 ## 4. Solution Architecture
 
-<!-- When the diagram is ready, save it to static/images/2-proposal/architecture.png and uncomment the line below:
-![ImageGuard Architecture](../images/2-proposal/architecture.png)
--->
+![ImageGuard architecture diagram](../images/2-proposal/imageguard-architecture.drawio.png)
+
+*Figure 1. ImageGuard architecture (drawn by the team in draw.io with the AWS Architecture Icons). Arrow numbers match the steps in Section 4.2.*
 
 ### 4.1. AWS Services and Rationale
 
@@ -125,16 +125,9 @@ Results are stored in **Amazon DynamoDB** and shown in the web UI within seconds
 | Cost Optimization | 100% serverless, pay per use; **`DetectLabels` is called only after an image passes moderation**; S3 Lifecycle; 14-day log retention; AWS Budgets |
 | Sustainability | No idle resources; compute is used only when an image needs processing |
 
-### 4.5. How the AI Service Was Chosen
+### 4.5. Why Amazon Rekognition
 
-| Date | Event | Decision |
-|---|---|---|
-| 28/10/2026 | Proposal v1.0: invoice processing with **Amazon Bedrock (Nova Lite)** | Bedrock chosen for Vietnamese support and low cost |
-| 28/10/2026 | Testing in the Bedrock playground returned `ThrottlingException`; the Quotas page showed **TPM = 0, RPM = 0** | Identified an account-level quota issue, not an IAM issue |
-| 05–06/11/2026 | Quota increase request via Service Quotas was **denied** ("Accessibility is subject to change automatically as time passes"). The other members' accounts also had a quota of 0 | Bedrock not feasible within the remaining time |
-| 06/11/2026 | Free plan service list checked: Textract is Paid-plan only; **Rekognition is available**. Label detection tested successfully in the console | **Switched to Rekognition**, keeping ~90% of the architecture (S3, Lambda, DynamoDB, API Gateway, Cognito, CloudFront, CloudWatch) |
-
-Lesson learned: **check quotas and service availability at the very start**, and design loosely coupled architectures so that one component can be replaced without rebuilding everything.
+The initial plan used **Amazon Bedrock** for invoice processing. During testing, the team's account had a Bedrock quota of 0, and the quota increase request was not approved. The team switched to **Amazon Rekognition** (a pre-trained AI service that is available on the current account and was tested successfully in the console) and kept most of the serverless architecture. The incident is documented in the Troubleshooting section of the workshop.
 
 ## 5. Plan & Timeline
 

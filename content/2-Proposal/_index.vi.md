@@ -9,7 +9,7 @@ pre: " <b> 2. </b> "
 # ImageGuard – Kiểm duyệt và gắn nhãn ảnh tự động bằng AI trên AWS Serverless
 
 {{% notice info %}}
-**Trạng thái:** Bản đề xuất v2.0 (06/11/2026). Bản v1.0 (28/10/2026) dùng Amazon Bedrock để xử lý hóa đơn; nhóm đã đổi hướng vì tài khoản bị giới hạn quota Bedrock (xem mục 4.5). Sơ đồ kiến trúc chính thức sẽ được nhóm tự vẽ bằng draw.io với bộ AWS Architecture Icons và bổ sung vào mục 4.
+**Trạng thái:** Bản đề xuất v2.0.
 {{% /notice %}}
 
 ## 1. Tổng quan
@@ -63,9 +63,9 @@ Kết quả được lưu vào **Amazon DynamoDB** và hiển thị trên giao d
 
 ## 4. Kiến trúc giải pháp
 
-<!-- Khi đã vẽ xong, lưu file vào static/images/2-proposal/architecture.png rồi bỏ comment dòng dưới:
-![ImageGuard Architecture](../../images/2-proposal/architecture.png)
--->
+![Sơ đồ kiến trúc ImageGuard](../../images/2-proposal/imageguard-architecture.drawio.png)
+
+*Hình 1. Sơ đồ kiến trúc ImageGuard (nhóm tự vẽ bằng draw.io với bộ AWS Architecture Icons). Số trên mũi tên tương ứng với các bước ở mục 4.2.*
 
 ### 4.1. Các dịch vụ AWS sử dụng và lý do lựa chọn
 
@@ -125,16 +125,9 @@ Kết quả được lưu vào **Amazon DynamoDB** và hiển thị trên giao d
 | Cost Optimization | 100% serverless trả theo lượt dùng; **chỉ gọi `DetectLabels` khi ảnh đã qua kiểm duyệt**; S3 Lifecycle; Logs retention 14 ngày; AWS Budgets |
 | Sustainability | Không có tài nguyên chạy không tải (idle); chỉ tốn tài nguyên khi có ảnh cần xử lý |
 
-### 4.5. Quá trình lựa chọn dịch vụ AI
+### 4.5. Lý do chọn Amazon Rekognition
 
-| Thời điểm | Sự kiện | Quyết định |
-|---|---|---|
-| 28/10/2026 | Proposal v1.0: xử lý hóa đơn bằng **Amazon Bedrock (Nova Lite)** | Chọn Bedrock vì đọc được tiếng Việt, chi phí thấp |
-| 28/10/2026 | Thử trên Bedrock Playground gặp `ThrottlingException`; trang Quotas cho thấy **TPM = 0, RPM = 0** | Xác định không phải lỗi IAM mà là quota cấp tài khoản |
-| 05–06/11/2026 | Gửi yêu cầu tăng quota qua Service Quotas → **bị từ chối** ("Accessibility is subject to change automatically as time passes"). Tài khoản của các thành viên khác cũng bị quota 0 | Bedrock không khả thi trong thời gian còn lại |
-| 06/11/2026 | Kiểm tra danh sách dịch vụ của Free plan: Textract chỉ có ở Paid plan; **Rekognition dùng được**. Thử Label detection trên Console thành công | **Đổi sang Rekognition**, giữ nguyên ~90% kiến trúc (S3, Lambda, DynamoDB, API Gateway, Cognito, CloudFront, CloudWatch) |
-
-Bài học: cần **kiểm tra quota và tính khả dụng của dịch vụ ngay từ đầu**, và thiết kế kiến trúc theo kiểu tách rời (loose coupling) để có thể thay một thành phần mà không phải làm lại toàn bộ.
+Phương án ban đầu dùng **Amazon Bedrock** để xử lý hóa đơn. Khi thử nghiệm, quota Bedrock trên tài khoản của nhóm bằng 0 và yêu cầu tăng quota không được chấp thuận. Nhóm chuyển sang **Amazon Rekognition** (dịch vụ AI có sẵn mô hình, dùng được trên tài khoản hiện tại, đã thử thành công trên Console) và giữ nguyên phần lớn kiến trúc serverless. Chi tiết sự cố được ghi lại ở mục Troubleshooting của workshop.
 
 ## 5. Kế hoạch & Timeline
 
