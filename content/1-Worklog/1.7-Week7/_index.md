@@ -19,7 +19,7 @@ pre: " <b> 1.7. </b> "
 | 3 | - Learn Event-Driven Architecture & Orchestration (theory): <br> &emsp; + Amazon EventBridge: Event Buses, Event Patterns, Rules <br> &emsp; + AWS Step Functions: State Machines and basic error handling. | 27/10/2026 | 27/10/2026 | <https://cloudjourney.awsstudygroup.com/> |
 | 4 | - Write Proposal v1.0 (problem, objectives, architecture, cost, risks). <br> - Set up the bilingual internship report website with Hugo and deploy it on GitHub Pages. <br> - Revise the worklog and write the Event 1 report page. | 28/10/2026 | 28/10/2026 | <https://github.com/thienluhoan/fcj-workshop-template> |
 | 5 | - Self-study: review notes on SQS, SNS and EventBridge. | 29/10/2026 | 29/10/2026 | <https://cloudjourney.awsstudygroup.com/> |
-| 6 | - Start writing Technical Blog #2 (draft in progress, not yet published). | 30/10/2026 | Ongoing | - |
+| 6 | - Start writing technical blog posts (published on 06/11/2026). | 30/10/2026 | 06/11/2026 | - |
 | 7 | - Attend FCAJ Community Day at the AWS Vietnam office (Bitexco Financial Tower): <br> &emsp; + Sessions on Software Factories, Education, AWS Lambda Web Functions, Amazon SQS, internship journey and open source contributing. | 31/10/2026 | 31/10/2026 | <https://luma.com/1izeyind> |
 
 ### Week 7 Achievements:
@@ -28,4 +28,4 @@ pre: " <b> 1.7. </b> "
 * Wrote Proposal v1.0 for the Capstone Workshop (SmartDoc).
 * Built and deployed the bilingual internship report website on GitHub Pages.
 * Attended FCAJ Community Day (31/10/2026).
-* Technical Blog #2 is in progress; Amazon Cognito and the event-driven hands-on lab are postponed.
+* Started writing technical blog posts (published on 06/11/2026); Amazon Cognito and the event-driven hands-on lab are postponed.

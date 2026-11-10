@@ -22,7 +22,7 @@ This worklog records what I learned and did during the 12-week First Cloud AI Jo
 
 **Week 7:** [Event-driven theory & Proposal](1.7-week7/)
 
-**Week 8:** [Infrastructure as Code & CI/CD](1.8-week8/)
+**Week 8:** [IaC, Amazon Bedrock testing & 3 blog posts](1.8-week8/)
 
 **Week 9:** [Container services on AWS](1.9-week9/)
 

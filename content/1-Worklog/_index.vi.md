@@ -22,7 +22,7 @@ Worklog này ghi lại những gì em đã học và làm trong 12 tuần thực
 
 **Tuần 7:** [Lý thuyết event-driven & Proposal](1.7-week7/)
 
-**Tuần 8:** [Infrastructure as Code & CI/CD](1.8-week8/)
+**Tuần 8:** [IaC, thử Amazon Bedrock & 3 bài blog](1.8-week8/)
 
 **Tuần 9:** [Các dịch vụ Container trên AWS](1.9-week9/)
 

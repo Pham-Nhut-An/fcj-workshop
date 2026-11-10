@@ -10,7 +10,7 @@ pre: " <b> 3.1. </b> "
 
 **Posted on:** AWS Study Group VN (Facebook) – 06/11/2026 – <https://www.facebook.com/groups/awsstudygroupfcj/posts/2328192347945724/>
 
-![Architecture of the self-improving document processing solution on Amazon Bedrock AgentCore](../../../images/3-Blog/blog1-architecture.png)
+![Architecture of the self-improving document processing solution on Amazon Bedrock AgentCore](../../images/3-Blog/blog1-architecture.png)
 
 *Figure: Architecture of the self-improving document processing solution with Amazon Bedrock AgentCore. Source: AWS Machine Learning Blog.*
 
