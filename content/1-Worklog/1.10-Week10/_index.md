@@ -8,20 +8,16 @@ pre: " <b> 1.10. </b> "
 
 ### Week 10 Objectives:
 
-* Explore AWS Data Analytics & AI/ML services.
-* Start implementing the Capstone Workshop and participate in Community Event #3.
+* Start implementing the ImageGuard workshop (foundation resources: S3, DynamoDB, SNS, SQS, IAM).
+* Participate in Community Event #3.
 
 ### Tasks to be carried out this week:
 | Day | Task | Start Date | Completion Date | Reference Material |
 | --- | --- | --- | --- | --- |
-| 2 | - Learn AWS Data Lake & Analytics Services: <br> &emsp; + S3 Data Lake storage layer <br> &emsp; + AWS Glue: Data Catalog, Metadata Crawlers, ETL jobs <br> &emsp; + Amazon Athena: Serverless interactive SQL queries on S3 data. | 16/11/2026 | Ongoing | <https://cloudjourney.awsstudygroup.com/> |
-| 3 | - Learn BI & AI/ML Services on AWS: <br> &emsp; + Amazon QuickSight for interactive dashboards and data visualization <br> &emsp; + Overview of AWS AI/ML services (Amazon SageMaker, Amazon Bedrock, GenAI Immersion Day). | 17/11/2026 | Ongoing | <https://cloudjourney.awsstudygroup.com/> |
-| 4 | - Build Capstone Workshop - Core Environment Setup: <br> &emsp; + Details to be updated. | 18/11/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
-| 5 | - Build Capstone Workshop - Module 1: <br> &emsp; + Details to be updated. | 19/11/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
-| 6 | - Participate in Community Event #3: <br> &emsp; + Event details to be updated. | 20/11/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
+| 2 – 5 | - Light self-study (no major tasks completed). | 16/11/2026 | 19/11/2026 | - |
+| 6 | - Review the ImageGuard architecture and prepare answers for mentor questions (Region choice, no VPC, IAM least privilege, cost estimate). | 20/11/2026 | Ongoing | - |
 
 ### Week 10 Achievements:
 
-* Ongoing
-* Ongoing
-* Ongoing
+* Reviewed the ImageGuard architecture and prepared answers for likely mentor questions.
+* Implementation (Step 1 – foundation resources) and Community Event #3 are not done yet.

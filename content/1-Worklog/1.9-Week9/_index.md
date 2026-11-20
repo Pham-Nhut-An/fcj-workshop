@@ -8,20 +8,20 @@ pre: " <b> 1.9. </b> "
 
 ### Week 9 Objectives:
 
-* Learn Container Services on AWS (Docker, Amazon ECR, Amazon ECS with AWS Fargate).
 * Find an alternative for the AI step of the workshop (Bedrock quota request denied).
+* Learn Container Services on AWS (Docker, Amazon ECR, Amazon ECS with AWS Fargate).
 
 ### Tasks to be carried out this week:
 | Day | Task | Start Date | Completion Date | Reference Material |
 | --- | --- | --- | --- | --- |
 | 2 | - Follow up on the Bedrock quota increase request (not successful). <br> - Review an overview of the lessons learned so far. | 09/11/2026 | 09/11/2026 | - |
-| 3 | - Learn Containerization Fundamentals (theory): <br> &emsp; + Docker container concepts, images, and container lifecycle <br> &emsp; + Writing secure multi-stage Dockerfiles <br> &emsp; + Building and running containers locally. | 10/11/2026 | Ongoing | <https://cloudjourney.awsstudygroup.com/> |
-| 4 | - Learn Amazon ECR & Amazon ECS: <br> &emsp; + Amazon Elastic Container Registry (ECR) for private image storage <br> &emsp; + Amazon ECS Components: Clusters, Task Definitions, Services <br> &emsp; + Launch types: EC2 Launch Type vs AWS Fargate (Serverless Containers). | 11/11/2026 | Ongoing | <https://cloudjourney.awsstudygroup.com/> |
-| 5 | - Learn Amazon Elastic Kubernetes Service (EKS): <br> &emsp; + EKS Architecture: Control Plane, Managed Node Groups, Fargate Profiles <br> &emsp; + `kubectl` and `eksctl` management <br> &emsp; + Pod networking, IAM Roles for Service Accounts (IRSA), and EKS Pod Identity. | 12/11/2026 | Ongoing | <https://cloudjourney.awsstudygroup.com/> |
-| 6 | - Practice Hands-on Lab: <br> &emsp; + Containerize a sample web application <br> &emsp; + Push image to Amazon ECR <br> &emsp; + Deploy on Amazon ECS Fargate behind an Application Load Balancer with auto-scaling. | 13/11/2026 | Ongoing | <https://cloudjourney.awsstudygroup.com/> |
+| 3 | - Test Amazon Rekognition on the AWS Console as an alternative to Amazon Bedrock: <br> &emsp; + DetectModerationLabels: a toy wooden gun was flagged as Violence/Weapons (97.2%, a false positive) <br> &emsp; + A beer photo was labeled Alcohol/Alcoholic Beverages (99.3%). | 10/11/2026 | 10/11/2026 | <https://docs.aws.amazon.com/rekognition/> |
+| 4 | - Draw the ImageGuard architecture diagram with draw.io (official AWS icons). | 11/11/2026 | 11/11/2026 | <https://aws.amazon.com/architecture/icons/> |
+| 5 | - Update the Proposal to v2.0: ImageGuard – automatic image moderation and labeling with Amazon Rekognition. | 12/11/2026 | 12/11/2026 | - |
+| 6 | - Refine the architecture diagram and the Proposal v2.0 on the report website. | 13/11/2026 | 13/11/2026 | - |
 
 ### Week 9 Achievements:
 
-* Ongoing
-* Ongoing
-* Ongoing
+* Tested Amazon Rekognition on the AWS Console (moderation and label detection) as an alternative to Amazon Bedrock.
+* Updated the Proposal to v2.0 (ImageGuard) and drew the architecture diagram with draw.io.
+* Container services (Docker, Amazon ECR, Amazon ECS, Amazon EKS) are postponed.

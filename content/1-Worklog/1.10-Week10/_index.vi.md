@@ -8,20 +8,16 @@ pre: " <b> 1.10. </b> "
 
 ### Mục tiêu tuần 10:
 
-* Tìm hiểu các dịch vụ Data Analytics & AI/ML của AWS.
-* Bắt đầu triển khai Workshop cuối kỳ và tham gia Community Event #3.
+* Bắt đầu triển khai workshop ImageGuard (tài nguyên nền tảng: S3, DynamoDB, SNS, SQS, IAM).
+* Tham gia Community Event #3.
 
 ### Các công việc cần triển khai trong tuần này:
 | Thứ | Công việc | Ngày bắt đầu | Ngày hoàn thành | Nguồn tài liệu |
 | --- | --- | --- | --- | --- |
-| 2 | - Tìm hiểu các dịch vụ Data Lake & Analytics của AWS: <br> &emsp; + Tầng lưu trữ Data Lake trên S3 <br> &emsp; + AWS Glue: Data Catalog, Crawler, ETL job <br> &emsp; + Amazon Athena: truy vấn SQL serverless trên dữ liệu S3. | 16/11/2026 | Đang thực hiện | <https://cloudjourney.awsstudygroup.com/> |
-| 3 | - Tìm hiểu các dịch vụ BI & AI/ML trên AWS: <br> &emsp; + Amazon QuickSight để tạo dashboard và trực quan hóa dữ liệu <br> &emsp; + Tổng quan các dịch vụ AI/ML của AWS (Amazon SageMaker, Amazon Bedrock, GenAI Immersion Day). | 17/11/2026 | Đang thực hiện | <https://cloudjourney.awsstudygroup.com/> |
-| 4 | - Xây dựng Workshop cuối kỳ - Thiết lập môi trường cốt lõi: <br> &emsp; + Chi tiết sẽ cập nhật sau. | 18/11/2026 | Đang thực hiện | <https://workshop-sample.awsfcaj.com/> |
-| 5 | - Xây dựng Workshop cuối kỳ - Module 1: <br> &emsp; + Chi tiết sẽ cập nhật sau. | 19/11/2026 | Đang thực hiện | <https://workshop-sample.awsfcaj.com/> |
-| 6 | - Tham gia Community Event #3: <br> &emsp; + Thông tin sự kiện sẽ cập nhật sau. | 20/11/2026 | Đang thực hiện | <https://workshop-sample.awsfcaj.com/> |
+| 2 – 5 | - Tự học nhẹ (chưa hoàn thành công việc lớn nào). | 16/11/2026 | 19/11/2026 | - |
+| 6 | - Rà soát kiến trúc ImageGuard và chuẩn bị câu trả lời cho mentor (chọn Region, không dùng VPC, IAM least privilege, ước tính chi phí). | 20/11/2026 | Đang thực hiện | - |
 
 ### Kết quả đạt được tuần 10:
 
-* Đang thực hiện
-* Đang thực hiện
-* Đang thực hiện
+* Đã rà soát kiến trúc ImageGuard và chuẩn bị câu trả lời cho các câu hỏi mentor có thể hỏi.
+* Phần triển khai (Step 1 – tài nguyên nền tảng) và Community Event #3 chưa thực hiện.

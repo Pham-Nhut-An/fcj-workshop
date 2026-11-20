@@ -24,9 +24,9 @@ Worklog này ghi lại những gì em đã học và làm trong 12 tuần thực
 
 **Tuần 8:** [IaC, thử Amazon Bedrock & 3 bài blog](1.8-week8/)
 
-**Tuần 9:** [Các dịch vụ Container trên AWS](1.9-week9/)
+**Tuần 9:** [Thử Amazon Rekognition & Proposal v2.0](1.9-week9/)
 
-**Tuần 10:** [Phân tích dữ liệu, AI/ML & bắt đầu Workshop](1.10-week10/)
+**Tuần 10:** [Rà soát kiến trúc ImageGuard](1.10-week10/)
 
 **Tuần 11:** [Triển khai & viết tài liệu Workshop](1.11-week11/)
 

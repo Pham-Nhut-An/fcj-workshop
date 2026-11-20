@@ -24,9 +24,9 @@ This worklog records what I learned and did during the 12-week First Cloud AI Jo
 
 **Week 8:** [IaC, Amazon Bedrock testing & 3 blog posts](1.8-week8/)
 
-**Week 9:** [Container services on AWS](1.9-week9/)
+**Week 9:** [Amazon Rekognition testing & Proposal v2.0](1.9-week9/)
 
-**Week 10:** [Data analytics, AI/ML & starting the workshop](1.10-week10/)
+**Week 10:** [ImageGuard architecture review](1.10-week10/)
 
 **Week 11:** [Workshop implementation & documentation](1.11-week11/)
 
