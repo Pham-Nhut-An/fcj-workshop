@@ -36,7 +36,7 @@ Results are stored in **Amazon DynamoDB** and shown in the web UI within seconds
 1. Build an automated pipeline, **Upload → AI moderation → AI labeling → Storage → Display/Search**, that runs entirely on AWS.
 2. Apply the **AWS Well-Architected Framework**, especially the **Security** pillar (IAM least privilege, no public resources, no hard-coded credentials).
 3. Provide full observability with **Amazon CloudWatch** (Logs, Metrics, Alarms) and email alerts through **Amazon SNS**.
-4. Keep operating cost at **about USD 6–7/month** under a realistic workload (Section 6).
+4. Keep operating cost at **about USD 8–9/month** under a realistic workload (Section 6).
 5. Write a **bilingual step-by-step guide** that lets others reproduce the deployment.
 
 ### 3.2. Success Criteria
@@ -65,7 +65,7 @@ Results are stored in **Amazon DynamoDB** and shown in the web UI within seconds
 
 ![ImageGuard architecture diagram](../images/2-proposal/imageguard-architecture.drawio.png)
 
-*Figure 1. ImageGuard architecture (drawn by the team in draw.io with the AWS Architecture Icons). Arrow numbers match the steps in Section 4.2.*
+*Figure 1. ImageGuard architecture (drawn by the team in draw.io with the AWS Architecture Icons). Arrow numbers match the table in Section 4.2. Arrow colors: blue – upload flow; orange – AI processing flow; green – view results flow; dashed grey – monitoring; dashed red – IAM.*
 
 ### 4.1. AWS Services and Rationale
 
@@ -87,17 +87,28 @@ Results are stored in **Amazon DynamoDB** and shown in the web UI within seconds
 
 ### 4.2. Data Flow
 
-1. The user opens the website through **CloudFront**, signs in with **Cognito** and receives a JWT token.
-2. The web app calls `POST /upload-url` on **API Gateway** with the token. API Gateway validates the token with the JWT authorizer and invokes the **`presign-upload`** Lambda.
-3. `presign-upload` creates a `PENDING` record in DynamoDB and returns a **presigned URL** (a temporary upload link that expires after 5 minutes) for the key `uploads/{userId}/{imageId}.jpg`.
-4. The browser uploads the image **directly to S3** with the presigned URL, so the image never passes through Lambda or API Gateway.
-5. S3 emits an **ObjectCreated** event (only for the `uploads/` prefix), which asynchronously invokes the **`process-image`** Lambda.
-6. `process-image` calls **Rekognition `DetectModerationLabels`** (Rekognition reads the image directly from S3):
-   - If a label from a blocked category is found with confidence ≥ 60%, the record is updated to `REJECTED` (with the reason) and an email is sent through **SNS**.
-   - Otherwise it calls **`DetectLabels`** (up to 10 labels, confidence ≥ 80%) and updates the record to `APPROVED` with the label list.
-7. If the Lambda still fails after 2 retries, the event is sent to the **SQS DLQ**.
-8. The web app calls `GET /images?label=...`. The **`get-images`** Lambda queries DynamoDB **only by the `userId` taken from the token**, filters by label if given, and returns the results. Images are displayed through short-lived **presigned GET URLs**, never made public.
-9. Every Lambda writes logs and metrics to **CloudWatch**; alarms send emails through **SNS** when errors occur.
+The numbers in this table match the numbers on the arrows in Figure 1.
+
+| # | From → To | Description |
+|---|---|---|
+| 1 | User → CloudFront → S3 `imageguard-web` | The user opens the site over HTTPS. CloudFront reads the static site from the private bucket through **Origin Access Control (OAC)** |
+| 2 | User ↔ Cognito | Sign in with Managed login (authorization code + PKCE) and receive a **JWT token** |
+| 3 | User → API Gateway | The web app calls `POST /upload-url` with the token; the **JWT authorizer** validates it first |
+| 3a | API Gateway → Lambda `presign-upload` | API Gateway invokes the upload-link Lambda |
+| 3b | `presign-upload` → DynamoDB | Creates a `PENDING` record and returns a **presigned URL** (a temporary upload link that expires after 5 minutes) for `uploads/{userId}/{imageId}.jpg` |
+| 4 | User → S3 `imageguard-images` | The browser uploads the image **directly to S3** with the presigned URL (the image never passes through API Gateway or Lambda) |
+| 5 | S3 → Lambda `process-image` | The **ObjectCreated** event (only for the `uploads/` prefix) asynchronously invokes the processing Lambda |
+| 6 | `process-image` → Rekognition | Calls `DetectModerationLabels`; only if the image is clean, calls `DetectLabels` (up to 10 labels, confidence ≥ 80%) |
+| 6a | Rekognition → S3 `imageguard-images` | Rekognition reads the image directly from S3 (the Lambda never downloads it) |
+| 7 | `process-image` → DynamoDB | Updates the record to `APPROVED` (with labels) or `REJECTED` (with the reason, when a blocked label is found with confidence ≥ 60%) |
+| 8 | `process-image` → SNS → Admin | Only when the image is `REJECTED` **and** step 7 succeeded: an alert email is sent to the administrator |
+| 9 | `process-image` → SQS DLQ | If the Lambda still fails after 2 retries, the event goes to the **dead-letter queue** for reprocessing |
+| 10 | User → API Gateway | The web app calls `GET /images?label=...` with the token (shares the arrow of step 3) |
+| 10a | API Gateway → Lambda `get-images` | API Gateway invokes the read Lambda |
+| 10b | `get-images` → DynamoDB | Queries **only by the `userId` taken from the token's `sub` claim**, filtered by label if given; images are shown through short-lived presigned GET URLs, never made public |
+| 11 | 3 Lambdas → CloudWatch | Write logs and metrics (Embedded Metric Format) |
+| 12 | CloudWatch → SNS | Alarms (Lambda errors, messages in the DLQ, API 5xx, …) send emails through SNS |
+| — | IAM → 3 Lambdas | Each Lambda has its own least-privilege **IAM execution role** (Section 4.3) |
 
 ### 4.3. Security Design (Security Pillar)
 
@@ -162,19 +173,21 @@ Internship period: 14/09/2026 – 04/12/2026. Planned workshop submission deadli
 | Service | Assumptions | Estimated cost (USD/month) |
 |---|---|---|
 | Amazon Rekognition | 3,000 `DetectModerationLabels` + ~2,910 `DetectLabels` calls × USD 0.001/image | 5.91 |
-| AWS Lambda | 36,000 invocations, ~3,200 GB-seconds | 0.06 (within the free tier) |
+| AWS Lambda | 3 arm64 functions, 36,000 invocations × 500 ms × 256 MB | 0.07 (within the free tier) |
 | Amazon API Gateway (HTTP API) | 33,000 requests | 0.03 |
 | Amazon DynamoDB (On-demand) | ~6,000 WRU + 30,000 RRU, < 1 GB | 0.01 |
-| Amazon S3 | 3 GB (30-day lifecycle), 3,000 PUT, 6,000 GET | 0.09 |
-| Amazon CloudWatch | 0.5 GB logs, 3 alarms, 3 custom metrics, 1 dashboard | 0.27 (mostly within the free tier) |
+| Amazon S3 | 3 GB (30-day lifecycle), 3,000 PUT, 30,000 GET | 0.10 |
+| Amazon CloudWatch | 5 custom metrics (EMF) 1.50 + 7 alarms 0.70 + 0.1 GB logs 0.05; 1 dashboard | 2.25 (within the free tier: 10 metrics, 10 alarms, 3 dashboards) |
 | Amazon CloudFront | ~2 GB transfer, 40,000 requests | 0.00 (Always Free) |
 | Amazon Cognito | < 10,000 MAU | 0.00 |
 | Amazon SNS, Amazon SQS | About 100 emails/messages | 0.00 |
-| **Total** | | **≈ USD 6.40/month (≈ USD 76/year)** |
+| **Total** | | **≈ USD 8.37/month (≈ USD 100/year)** |
 
 During development and the demo (fewer than 300 images expected), Rekognition costs only about USD 0.60, and everything is covered by the account's credits.
 
-*AWS Pricing Calculator link:* `[to be added after the estimate is created]`
+*AWS Pricing Calculator link:* [https://calculator.aws/#/estimate?id=5fa9c30d042e143fc2fd1f9387af56c6709e22f9](https://calculator.aws/#/estimate?id=5fa9c30d042e143fc2fd1f9387af56c6709e22f9)
+
+> **Updated after deployment (20/11/2026):** the first estimate was USD 6.40/month. During the real deployment the team added 7 CloudWatch alarms and 5 custom metrics (EMF) for monitoring, so CloudWatch rose from USD 0.27 to 2.25. Within the account's free tier this part is close to zero. Data transfer out when users view images (~3 GB/month) is inside the 100 GB/month free allowance.
 
 ### Cost Optimization Strategy
 

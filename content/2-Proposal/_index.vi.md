@@ -36,7 +36,7 @@ Kết quả được lưu vào **Amazon DynamoDB** và hiển thị trên giao d
 1. Xây dựng pipeline tự động **Upload ảnh → AI kiểm duyệt → AI gắn nhãn → Lưu trữ → Hiển thị/Tìm kiếm** chạy hoàn toàn trên AWS.
 2. Áp dụng **AWS Well-Architected Framework**, đặc biệt là trụ cột **Security** (IAM Least Privilege, không public tài nguyên, không hard-code credentials).
 3. Giám sát đầy đủ bằng **Amazon CloudWatch** (Logs, Metrics, Alarms) và cảnh báo qua email bằng **Amazon SNS**.
-4. Giữ chi phí vận hành ở mức **khoảng 6–7 USD/tháng** với kịch bản tải thực tế (mục 6).
+4. Giữ chi phí vận hành ở mức **khoảng 8–9 USD/tháng** với kịch bản tải thực tế (mục 6).
 5. Viết tài liệu **step-by-step song ngữ** để người khác có thể tự triển khai lại.
 
 ### 3.2. Tiêu chí hoàn thành (Success criteria)
@@ -65,7 +65,7 @@ Kết quả được lưu vào **Amazon DynamoDB** và hiển thị trên giao d
 
 ![Sơ đồ kiến trúc ImageGuard](../../images/2-proposal/imageguard-architecture.drawio.png)
 
-*Hình 1. Sơ đồ kiến trúc ImageGuard (nhóm tự vẽ bằng draw.io với bộ AWS Architecture Icons). Số trên mũi tên tương ứng với các bước ở mục 4.2.*
+*Hình 1. Sơ đồ kiến trúc ImageGuard (nhóm tự vẽ bằng draw.io với bộ AWS Architecture Icons). Số trên mũi tên tương ứng với bảng ở mục 4.2. Màu mũi tên: xanh dương – luồng upload; cam – luồng xử lý AI; xanh lá – luồng xem kết quả; xám nét đứt – giám sát; đỏ nét đứt – IAM.*
 
 ### 4.1. Các dịch vụ AWS sử dụng và lý do lựa chọn
 
@@ -87,17 +87,28 @@ Kết quả được lưu vào **Amazon DynamoDB** và hiển thị trên giao d
 
 ### 4.2. Luồng dữ liệu (Data flow)
 
-1. Người dùng mở web qua **CloudFront** → đăng nhập bằng **Cognito** → nhận JWT token.
-2. Web gọi `POST /upload-url` trên **API Gateway** (kèm token). API Gateway kiểm tra token bằng JWT Authorizer rồi gọi Lambda **`presign-upload`**.
-3. `presign-upload` tạo bản ghi trạng thái `PENDING` trong DynamoDB và trả về một **Presigned URL** (link upload tạm thời, hết hạn sau 5 phút) cho đường dẫn `uploads/{userId}/{imageId}.jpg`.
-4. Trình duyệt upload ảnh **thẳng lên S3** bằng Presigned URL (ảnh không đi qua Lambda/API Gateway).
-5. S3 phát sinh sự kiện **ObjectCreated** (chỉ với prefix `uploads/`) → gọi bất đồng bộ Lambda **`process-image`**.
-6. `process-image` gọi **Rekognition `DetectModerationLabels`** (Rekognition đọc ảnh trực tiếp từ S3):
-   - Nếu phát hiện nhãn thuộc danh mục bị cấm với độ tin cậy ≥ 60% → cập nhật DynamoDB thành `REJECTED` (kèm lý do) và gửi email qua **SNS**.
-   - Nếu hợp lệ → gọi tiếp **`DetectLabels`** (tối đa 10 nhãn, độ tin cậy ≥ 80%) → cập nhật DynamoDB thành `APPROVED` kèm danh sách nhãn.
-7. Nếu Lambda lỗi sau 2 lần thử lại, sự kiện được đưa vào **SQS DLQ**.
-8. Web gọi `GET /images?label=...` → Lambda **`get-images`** truy vấn DynamoDB **chỉ theo `userId` lấy từ token**, lọc theo nhãn nếu có → hiển thị kết quả. Ảnh được xem qua **Presigned URL GET** ngắn hạn, không public.
-9. Tất cả Lambda ghi log và metric vào **CloudWatch**; Alarm gửi email qua **SNS** khi có lỗi.
+Số thứ tự trong bảng trùng với số trên các mũi tên ở Hình 1.
+
+| # | Từ → Đến | Mô tả |
+|---|---|---|
+| 1 | User → CloudFront → S3 `imageguard-web` | Người dùng mở web qua HTTPS. CloudFront đọc web tĩnh từ bucket private qua **Origin Access Control (OAC)** |
+| 2 | User ↔ Cognito | Đăng nhập bằng Managed login (Authorization code + PKCE), nhận **JWT token** |
+| 3 | User → API Gateway | Web gọi `POST /upload-url` kèm token; **JWT Authorizer** kiểm tra token trước khi cho đi tiếp |
+| 3a | API Gateway → Lambda `presign-upload` | API Gateway gọi Lambda tạo link upload |
+| 3b | `presign-upload` → DynamoDB | Tạo bản ghi `PENDING` rồi trả về **Presigned URL** (link upload tạm thời, hết hạn sau 5 phút) cho `uploads/{userId}/{imageId}.jpg` |
+| 4 | User → S3 `imageguard-images` | Trình duyệt upload ảnh **thẳng lên S3** bằng Presigned URL (ảnh không đi qua API Gateway/Lambda) |
+| 5 | S3 → Lambda `process-image` | Sự kiện **ObjectCreated** (chỉ prefix `uploads/`) gọi bất đồng bộ Lambda xử lý |
+| 6 | `process-image` → Rekognition | Gọi `DetectModerationLabels`; nếu ảnh hợp lệ mới gọi tiếp `DetectLabels` (tối đa 10 nhãn, độ tin cậy ≥ 80%) |
+| 6a | Rekognition → S3 `imageguard-images` | Rekognition đọc ảnh trực tiếp từ S3 (Lambda không phải tải ảnh về) |
+| 7 | `process-image` → DynamoDB | Cập nhật bản ghi thành `APPROVED` (kèm nhãn) hoặc `REJECTED` (kèm lý do, khi có nhãn bị cấm với độ tin cậy ≥ 60%) |
+| 8 | `process-image` → SNS → Admin | Chỉ khi ảnh bị `REJECTED` **và** bước 7 đã ghi thành công: gửi email cảnh báo cho quản trị viên |
+| 9 | `process-image` → SQS DLQ | Nếu Lambda vẫn lỗi sau 2 lần thử lại, sự kiện được đưa vào **Dead-Letter Queue** để xử lý lại |
+| 10 | User → API Gateway | Web gọi `GET /images?label=...` kèm token (dùng chung đường mũi tên với bước 3) |
+| 10a | API Gateway → Lambda `get-images` | API Gateway gọi Lambda đọc kết quả |
+| 10b | `get-images` → DynamoDB | Truy vấn **chỉ theo `userId` lấy từ claim `sub` của token**, lọc theo nhãn nếu có; ảnh được hiển thị qua Presigned URL GET ngắn hạn, không public |
+| 11 | 3 Lambda → CloudWatch | Ghi log và metric (Embedded Metric Format) |
+| 12 | CloudWatch → SNS | Alarm (lỗi Lambda, DLQ có message, API 5xx…) gửi email qua SNS |
+| — | IAM → 3 Lambda | Mỗi Lambda có một **IAM execution role** riêng theo Least Privilege (mục 4.3) |
 
 ### 4.3. Thiết kế bảo mật (Security pillar)
 
@@ -162,19 +173,21 @@ Thời gian thực tập: 14/09/2026 – 04/12/2026. Hạn nộp Workshop dự k
 | Dịch vụ | Giả định | Chi phí ước tính (USD/tháng) |
 |---|---|---|
 | Amazon Rekognition | 3.000 lượt `DetectModerationLabels` + ~2.910 lượt `DetectLabels` × 0,001 USD/ảnh | 5,91 |
-| AWS Lambda | 36.000 lượt chạy, ~3.200 GB-giây | 0,06 (nằm trong Free Tier) |
+| AWS Lambda | 3 function arm64, 36.000 lượt chạy × 500 ms × 256 MB | 0,07 (nằm trong Free Tier) |
 | Amazon API Gateway (HTTP API) | 33.000 request | 0,03 |
 | Amazon DynamoDB (On-demand) | ~6.000 WRU + 30.000 RRU, < 1 GB | 0,01 |
-| Amazon S3 | 3 GB (Lifecycle 30 ngày), 3.000 PUT, 6.000 GET | 0,09 |
-| Amazon CloudWatch | 0,5 GB log, 3 alarm, 3 custom metric, 1 dashboard | 0,27 (phần lớn nằm trong Free Tier) |
+| Amazon S3 | 3 GB (Lifecycle 30 ngày), 3.000 PUT, 30.000 GET | 0,10 |
+| Amazon CloudWatch | 5 custom metric (EMF) 1,50 + 7 alarm 0,70 + 0,1 GB log 0,05; 1 dashboard | 2,25 (nằm trong Free Tier: 10 metric, 10 alarm, 3 dashboard) |
 | Amazon CloudFront | ~2 GB truyền tải, 40.000 request | 0,00 (Always Free) |
 | Amazon Cognito | < 10.000 MAU | 0,00 |
 | Amazon SNS, Amazon SQS | Khoảng 100 email/tin nhắn | 0,00 |
-| **Tổng** | | **≈ 6,40 USD/tháng (≈ 76 USD/năm)** |
+| **Tổng** | | **≈ 8,37 USD/tháng (≈ 100 USD/năm)** |
 
 Trong giai đoạn phát triển và demo (dự kiến < 300 ảnh), chi phí Rekognition chỉ khoảng 0,60 USD; toàn bộ nằm trong credit của tài khoản.
 
-*Link AWS Pricing Calculator:* `[nhóm bổ sung sau khi tạo estimate]`
+*Link AWS Pricing Calculator:* [https://calculator.aws/#/estimate?id=5fa9c30d042e143fc2fd1f9387af56c6709e22f9](https://calculator.aws/#/estimate?id=5fa9c30d042e143fc2fd1f9387af56c6709e22f9)
+
+> **Cập nhật sau khi triển khai (20/11/2026):** bản dự toán đầu là 6,40 USD/tháng. Khi triển khai thật, nhóm bổ sung 7 CloudWatch Alarm và 5 custom metric (EMF) để giám sát, nên phần CloudWatch tăng từ 0,27 lên 2,25 USD. Với Free Tier của tài khoản, phần này gần như bằng 0. Data transfer out khi người dùng xem ảnh (~3 GB/tháng) nằm trong 100 GB miễn phí mỗi tháng.
 
 ### Chiến lược tối ưu chi phí
 
