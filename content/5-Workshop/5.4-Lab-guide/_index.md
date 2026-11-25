@@ -16,14 +16,42 @@ Full source code: [static/code/imageguard](https://github.com/Pham-Nhut-An/fcj-w
 - **Management → Lifecycle rule** `delete-uploads-30d`: prefix `uploads/`, expire after **30 days**.
 - **Permissions → Bucket policy**: deny any request without HTTPS (`aws:SecureTransport = false`).
 
-![S3 Block public access and bucket policy](../../images/5-workshop/1-4-s3-permissions.png)
+![Figure 1.1 – Bucket name, ACLs disabled](../../images/5-workshop/1-1-s3-create-general.png)
+*Figure 1.1 – Bucket name, ACLs disabled*
+
+![Figure 1.2 – Block all public access, versioning off, SSE-S3](../../images/5-workshop/1-2-s3-create-security.png)
+*Figure 1.2 – Block all public access, versioning off, SSE-S3*
+
+![Figure 1.3 – Lifecycle rule deleting uploads/ after 30 days](../../images/5-workshop/1-3-s3-lifecycle.png)
+*Figure 1.3 – Lifecycle rule deleting uploads/ after 30 days*
+
+![Figure 1.4 – Permissions tab: Block public access On and HTTPS-only bucket policy](../../images/5-workshop/1-4-s3-permissions.png)
+*Figure 1.4 – Permissions tab: Block public access On and HTTPS-only bucket policy*
+
 
 ### 1.2. DynamoDB
 **Create table** `imageguard-images` · Partition key `userId` (String) · Sort key `imageId` (String) · **On-demand**.
 
+![Figure 1.5 – imageguard-images table: userId / imageId, On-demand](../../images/5-workshop/2-1-dynamodb.png)
+*Figure 1.5 – imageguard-images table: userId / imageId, On-demand*
+
+
 ### 1.3. SNS and SQS
 - SNS **Standard** topic `imageguard-alerts`, **encryption off** (see [Troubleshooting](../5.5-testing/)), Email subscription → click **Confirm subscription** in the email.
 - SQS **Standard** `imageguard-process-dlq`, **14-day** retention, default SSE-SQS.
+
+![Figure 1.6 – Standard SNS topic imageguard-alerts](../../images/5-workshop/3-1-sns-create-topic.png)
+*Figure 1.6 – Standard SNS topic imageguard-alerts*
+
+![Figure 1.7 – Subscription confirmation email](../../images/5-workshop/3-2-sns-confirm-email.png)
+*Figure 1.7 – Subscription confirmation email*
+
+![Figure 1.8 – Subscription Confirmed](../../images/5-workshop/3-3-sns-confirmed.png)
+*Figure 1.8 – Subscription Confirmed*
+
+![Figure 1.9 – Standard SQS queue imageguard-process-dlq, 14-day retention](../../images/5-workshop/4-1-sqs-create.png)
+*Figure 1.9 – Standard SQS queue imageguard-process-dlq, 14-day retention*
+
 
 ### 1.4. IAM role for `process-image`
 **IAM → Roles → Create role** → AWS service **Lambda** → **attach no managed policy** → `imageguard-process-image-role` → **Create inline policy** (JSON):
@@ -44,16 +72,36 @@ Full source code: [static/code/imageguard](https://github.com/Pham-Nhut-An/fcj-w
 
 The Review page must list **6 services**. If it says *"The policy failed legacy parsing"*, check the Account ID (see 5.5).
 
-![The role has a single inline policy](../../images/5-workshop/5-4-iam-role-summary.png)
+![Figure 1.10 – Trusted entity: AWS service Lambda](../../images/5-workshop/5-1-iam-role-trusted.png)
+*Figure 1.10 – Trusted entity: AWS service Lambda*
+
+![Figure 1.11 – No managed policy attached](../../images/5-workshop/5-2-iam-role-no-managed.png)
+*Figure 1.11 – No managed policy attached*
+
+![Figure 1.12 – JSON inline policy](../../images/5-workshop/5-3-iam-inline-policy.png)
+*Figure 1.12 – JSON inline policy*
+
+![Figure 1.13 – The role has exactly one inline policy](../../images/5-workshop/5-4-iam-role-summary.png)
+*Figure 1.13 – The role has exactly one inline policy*
+
 
 ## Step 2 – `process-image` Lambda and S3 Event
 
 ### 2.1. Create the function
 **Lambda → Create function → Author from scratch** · name `imageguard-process-image` · **Python 3.12** · **Additional settings**: ARM64 **on**, Custom execution role **on** → `imageguard-process-image-role`, Function URL **off**.
 
-![Creating the process-image Lambda](../../images/5-workshop/6-1-lambda-create.png)
+![Figure 2.1 – Create the Lambda: Python 3.12, ARM64, existing role, no Function URL](../../images/5-workshop/6-1-lambda-create.png)
+*Figure 2.1 – Create the Lambda: Python 3.12, ARM64, existing role, no Function URL*
+
 
 Paste `process_image/lambda_function.py` → **Deploy**. Memory **256 MB**, timeout **30 seconds**.
+
+![Figure 2.2 – Code pasted and deployed](../../images/5-workshop/7-1-lambda-code-deployed.png)
+*Figure 2.2 – Code pasted and deployed*
+
+![Figure 2.3 – Memory 256 MB, timeout 30 seconds](../../images/5-workshop/8-1-lambda-general-config.png)
+*Figure 2.3 – Memory 256 MB, timeout 30 seconds*
+
 
 | Environment variable | Value |
 |---|---|
@@ -63,6 +111,10 @@ Paste `process_image/lambda_function.py` → **Deploy**. Memory **256 MB**, time
 | `BLOCKED_CATEGORIES` | `Explicit,Violence,Visually Disturbing,Drugs & Tobacco,Hate Symbols` |
 | `MIN_MODERATION_CONFIDENCE` | `60` |
 | `MAX_LABELS` · `MIN_LABEL_CONFIDENCE` | `10` · `80` |
+
+![Figure 2.4 – The 7 environment variables of process-image](../../images/5-workshop/9-1-lambda-env-vars.png)
+*Figure 2.4 – The 7 environment variables of process-image*
+
 
 ### 2.2. Key ideas in the code
 
@@ -88,13 +140,77 @@ Metrics use the **Embedded Metric Format**: one JSON log line with an `_aws` key
 - **Destinations → On failure** → SQS `imageguard-process-dlq`.
 - **Add trigger → S3**: image bucket, event **PUT**, prefix `uploads/`, suffix `.jpg`.
 
-![Function overview: S3 → Lambda → SQS](../../images/5-workshop/11-2-lambda-overview.png)
+![Figure 2.5 – Asynchronous invocation: max age 1 hour, 2 retries](../../images/5-workshop/10-1-lambda-async-config.png)
+*Figure 2.5 – Asynchronous invocation: max age 1 hour, 2 retries*
+
+![Figure 2.6 – On-failure destination → SQS DLQ](../../images/5-workshop/10-2-lambda-destination.png)
+*Figure 2.6 – On-failure destination → SQS DLQ*
+
+![Figure 2.7 – S3 trigger: PUT event, prefix uploads/, suffix .jpg](../../images/5-workshop/11-1-s3-trigger-config.png)
+*Figure 2.7 – S3 trigger: PUT event, prefix uploads/, suffix .jpg*
+
+![Figure 2.8 – Function overview: S3 → Lambda → SQS](../../images/5-workshop/11-2-lambda-overview.png)
+*Figure 2.8 – Function overview: S3 → Lambda → SQS*
+
+![Figure 2.9 – Resource-based policy with aws:SourceArn and aws:SourceAccount (confused-deputy protection)](../../images/5-workshop/11-3-lambda-resource-policy.png)
+*Figure 2.9 – Resource-based policy with aws:SourceArn and aws:SourceAccount (confused-deputy protection)*
+
+### 2.4. Quick check of Step 2 (no website needed)
+
+1. **DynamoDB → Explore items → Create item**: `userId` = `test-user-001`, `imageId` = `img-001`, add a String attribute `status` = `PENDING`. Repeat for `img-002`.
+2. **S3** → create the folder `uploads/test-user-001/` → upload a beer image as `img-001.jpg` and the toy gun as `img-002.jpg`.
+3. Wait about 10 seconds, then **Explore items → Run**.
+
+![Figure 2.10 – Test items in PENDING state](../../images/5-workshop/12-1-dynamodb-pending.png)
+*Figure 2.10 – Test items in PENDING state*
+
+![Figure 2.11 – Test images in uploads/test-user-001/](../../images/5-workshop/13-1-s3-uploaded.png)
+*Figure 2.11 – Test images in uploads/test-user-001/*
+
+![Figure 2.12 – Result: img-001 APPROVED, img-002 REJECTED](../../images/5-workshop/14-1-dynamodb-result.png)
+*Figure 2.12 – Result: img-001 APPROVED, img-002 REJECTED*
+
+![Figure 2.13 – Approved image: labels](../../images/5-workshop/14-2-item-approved-labels.png)
+*Figure 2.13 – Approved image: labels*
+
+![Figure 2.14 – Violating image: blockedCategories = Violence](../../images/5-workshop/14-3-item-rejected.png)
+*Figure 2.14 – Violating image: blockedCategories = Violence*
+
+![Figure 2.15 – Alert email received by the administrator](../../images/5-workshop/14-4-sns-alert-email.png)
+*Figure 2.15 – Alert email received by the administrator*
+
+![Figure 2.16 – image_processed log line in CloudWatch Logs](../../images/5-workshop/14-5-cloudwatch-log.png)
+*Figure 2.16 – image_processed log line in CloudWatch Logs*
+
+### 2.5. DLQ check (intentional failure)
+
+1. Change the `TABLE_NAME` environment variable to a table that does not exist.
+2. **Test** tab → Invocation type **Asynchronous** → send a sample S3 event pointing to an existing image.
+3. After about 3 minutes (1 run + 2 retries) → **SQS → imageguard-process-dlq → Poll for messages**.
+4. Set `TABLE_NAME` back to `imageguard-images`.
+
+![Figure 2.17 – Temporarily changing TABLE_NAME to cause a failure](../../images/5-workshop/15-0-env-table-name-wrong.jpg)
+*Figure 2.17 – Temporarily changing TABLE_NAME to cause a failure*
+
+![Figure 2.18 – Asynchronous invocation from the Test tab](../../images/5-workshop/15-1-lambda-async-invoke.jpg)
+*Figure 2.18 – Asynchronous invocation from the Test tab*
+
+![Figure 2.19 – The DLQ receives 1 message after retries are exhausted](../../images/5-workshop/15-2a-dlq-messages-list.jpg)
+*Figure 2.19 – The DLQ receives 1 message after retries are exhausted*
+
+![Figure 2.20 – TABLE_NAME restored](../../images/5-workshop/15-3-env-restored.jpg)
+*Figure 2.20 – TABLE_NAME restored*
+
+The DLQ message body is shown in [section 5.5](../5.5-testing/).
+
 
 ## Step 3 – Cognito, API Gateway, static website
 
 Step 3 can be done in the Console in the order below, or by running [`setup.sh`](https://github.com/Pham-Nhut-An/fcj-workshop/tree/main/static/code/imageguard/scripts/setup.sh) in **CloudShell**, which creates everything with the AWS CLI (about 3 minutes).
 
-![Output of setup.sh in CloudShell](../../images/5-workshop/23-0-cloudshell-setup-output.jpg)
+![Figure 3.1 – Output of setup.sh in CloudShell](../../images/5-workshop/23-0-cloudshell-setup-output.jpg)
+*Figure 3.1 – Output of setup.sh in CloudShell*
+
 
 ### 3.1. Two API Lambdas
 Create 2 dedicated roles (least privilege), then 2 Python 3.12 arm64 functions, 128 MB, 10 seconds:
@@ -111,12 +227,16 @@ Create 2 dedicated roles (least privilege), then 2 Python 3.12 arm64 functions, 
 2. **CloudFront → Create distribution**: S3 web bucket origin with **OAC**, Redirect HTTP to HTTPS, CachingOptimized, response headers **SecurityHeadersPolicy**, default root object `index.html`, WAF off.
 3. Bucket policy allows only `cloudfront.amazonaws.com` with `AWS:SourceArn` = the distribution ARN.
 
-![ImageGuard served through CloudFront](../../images/5-workshop/21-4-web-first-load.jpg)
+![Figure 3.2 – ImageGuard served through CloudFront](../../images/5-workshop/21-4-web-first-load.jpg)
+*Figure 3.2 – ImageGuard served through CloudFront*
+
 
 ### 3.3. Cognito
 User pool `imageguard-users`, **email** sign-in, self sign-up enabled. App client **SPA without a client secret**: Authorization code grant, scopes `openid email`, callback and sign-out URL = `https://<CLOUDFRONT_DOMAIN>/`. Create a domain (Managed login).
 
-![Cognito Managed Login page](../../images/5-workshop/26-0-cognito-managed-login.jpg)
+![Figure 3.3 – Cognito Managed Login page](../../images/5-workshop/26-0-cognito-managed-login.jpg)
+*Figure 3.3 – Cognito Managed Login page*
+
 
 ### 3.4. API Gateway HTTP API
 - Routes `POST /upload-url` → `presign-upload`, `GET /images` → `get-images`, stage `$default` with auto-deploy.
@@ -127,6 +247,10 @@ User pool `imageguard-users`, **email** sign-in, self sign-up enabled. App clien
 ### 3.5. Wire everything together
 - CORS on the image bucket: allow `PUT, GET` from the CloudFront domain.
 - Fill in `config.js` (Cognito domain, client ID, redirect URI, API URL), upload it again, create a CloudFront invalidation for `/*`.
+
+![Figure 3.4 – End result: the user signs in, uploads images and sees APPROVED / REJECTED](../../images/5-workshop/26-3-web-gallery.png)
+*Figure 3.4 – End result: the user signs in, uploads images and sees APPROVED / REJECTED*
+
 
 ## Step 4 – Monitoring
 
@@ -142,4 +266,18 @@ Run [`step4.sh`](https://github.com/Pham-Nhut-An/fcj-workshop/tree/main/static/c
 
 Every alarm notifies the `imageguard-alerts` SNS topic on both **ALARM** and **OK**. The `imageguard` dashboard shows APPROVED/REJECTED counts, processing time, Lambda, API Gateway, the DLQ and alarm status. Log retention is **14 days** for all 3 Lambdas.
 
-![imageguard CloudWatch dashboard](../../images/5-workshop/28-4-dashboard.png)
+![Figure 4.1 – 7 alarms and the dashboard created by step4.sh](../../images/5-workshop/28-1-step4-alarms-created.jpg)
+*Figure 4.1 – 7 alarms and the dashboard created by step4.sh*
+
+![Figure 4.2 – Alarm states: DLQ in ALARM (test message left), others OK](../../images/5-workshop/28-2-step4-alarm-states.jpg)
+*Figure 4.2 – Alarm states: DLQ in ALARM (test message left), others OK*
+
+![Figure 4.3 – Custom metrics (EMF) in the ImageGuard namespace](../../images/5-workshop/14-6-cloudwatch-metrics.png)
+*Figure 4.3 – Custom metrics (EMF) in the ImageGuard namespace*
+
+![Figure 4.4 – Log group with 14-day retention](../../images/5-workshop/14-7-log-retention.png)
+*Figure 4.4 – Log group with 14-day retention*
+
+![Figure 4.5 – imageguard CloudWatch dashboard](../../images/5-workshop/28-4-dashboard.png)
+*Figure 4.5 – imageguard CloudWatch dashboard*
+

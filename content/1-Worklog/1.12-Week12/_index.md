@@ -8,20 +8,15 @@ pre: " <b> 1.12. </b> "
 
 ### Week 12 Objectives:
 
-* Conduct peer testing and final refinement of the Capstone Workshop.
-* Complete Self-Assessment, Sharing & Feedback, and finalize the comprehensive OJT Internship Report.
+* Submit on time (30/11/2026) and finish the internship.
 
 ### Tasks to be carried out this week:
 | Day | Task | Start Date | Completion Date | Reference Material |
 | --- | --- | --- | --- | --- |
-| 2 | - Peer Review & Workshop Validation: <br> &emsp; + Share workshop documentation with FCAJ peers and mentors for independent testing <br> &emsp; + Collect peer feedback on clarity, reproducibility, and potential friction points. | 30/11/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
-| 3 | - Refine Workshop Content & Resource Cleanup: <br> &emsp; + Update documentation based on peer feedback and add troubleshooting FAQ <br> &emsp; + Execute full resource cleanup in AWS account to ensure zero lingering costs. | 01/12/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
-| 4 | - Write Self-Assessment (Self-Evaluation): <br> &emsp; + Evaluate technical growth across AWS services, architecture design, and DevOps <br> &emsp; + Reflect on soft skills developed: problem-solving, documentation, and communication <br> &emsp; + Identify areas for continued improvement and future cloud certifications (AWS SAA). | 02/12/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
-| 5 | - Write Sharing & Feedback: <br> &emsp; + Provide constructive suggestions for FCAJ mentorship and training program <br> &emsp; + Compile feedback for FPT University OJT department regarding curriculum preparation. | 03/12/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
-| 6 | - Final Report Compilation & Submission: <br> &emsp; + Assemble all sections: 12 Weeks Worklog, Proposal, 3 Blogs, 3 Events, Workshop, Self-Assessment, Feedback <br> &emsp; + Format document, perform final proofreading, and submit the complete OJT Internship Report to FPT University and FCAJ mentors. | 04/12/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
+| 2 | - Submit the workshop link on FCAJ Portal. <br> - The team lead submits the summary `.md` + architecture `.xml` on FCAJ Submission. | 30/11/2026 | Ongoing | <https://hcm-rules.awsfcaj.com/instructions/fcaj-submission> |
+| 3 – 5 | - Track the review status and fix issues from mentor feedback if rejected. | 01/12/2026 | Ongoing | - |
+| 6 | - After grading: clean up all AWS resources following section 5.7 to avoid charges (the internship ends on 14/12/2026). | 04/12/2026 | Ongoing | - |
 
 ### Week 12 Achievements:
 
-* Ongoing
-* Ongoing
 * Ongoing

@@ -17,7 +17,7 @@ pre: " <b> 1.5. </b> "
 | 3 | - Tìm hiểu bảo vệ dữ liệu & quản lý secrets: <br> &emsp; + AWS Key Management Service (KMS) - CMK đối xứng và bất đối xứng <br> &emsp; + Envelope Encryption và KMS Key Policy <br> &emsp; + AWS Secrets Manager (tự động rotation) & SSM Parameter Store. | 13/10/2026 | 13/10/2026 | <https://cloudjourney.awsstudygroup.com/> |
 | 4 | - Tìm hiểu phát hiện mối đe dọa & bảo vệ vành đai: <br> &emsp; + AWS WAF (Web Application Firewall) với managed rule set & rate limiting <br> &emsp; + AWS Shield Standard & Advanced để chống DDoS <br> &emsp; + Amazon GuardDuty phát hiện mối đe dọa và bất thường tự động bằng ML. | 14/10/2026 | 14/10/2026 | <https://cloudjourney.awsstudygroup.com/> |
 | 5 | - Tìm hiểu giao tiếp dịch vụ riêng tư (private): <br> &emsp; + VPC Gateway Endpoints (Amazon S3, DynamoDB) <br> &emsp; + VPC Interface Endpoints dựa trên AWS PrivateLink <br> &emsp; + Endpoint Policy để kiểm soát truy cập chặt chẽ ở tầng mạng. | 15/10/2026 | 15/10/2026 | <https://cloudjourney.awsstudygroup.com/> |
-| 6 | - Technical Blog #1: Đang thực hiện (chưa đăng). | 16/10/2026 | Đang thực hiện | <https://workshop-sample.awsfcaj.com/> |
+| 6 | - Bắt đầu chuẩn bị Technical Blog #1 (đăng ngày 06/11/2026, tuần 8). | 16/10/2026 | 06/11/2026 | <https://workshop-sample.awsfcaj.com/> |
 
 ### Kết quả đạt được tuần 5:
 

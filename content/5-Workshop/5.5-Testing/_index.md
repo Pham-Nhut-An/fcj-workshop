@@ -27,6 +27,20 @@ The DLQ test also proves **least privilege**: the error in the DLQ is `AccessDen
 
 ![DLQ message: RetriesExhausted](../../images/5-workshop/15-2b-dlq-message-body.jpg)
 
+## Success criteria check (Proposal section 3.2)
+
+| Criterion | Target | Measured result |
+|---|---|---|
+| Processing time per image | ≤ 10 seconds | ✅ About 0.5–1 second (`ProcessingLatency` metric on the dashboard) |
+| Violating images blocked | ≥ 90% | ⚠️ Not enough samples to conclude: the current test set has only 2 images |
+| Valid images blocked by mistake | ≤ 10% | ⚠️ 1 of 2 images blocked by mistake (wooden toy gun → Violence/Weapons 98%); the sample is too small, a larger test set is needed |
+| API call without sign-in | Rejected (401) | ✅ `{"message":"Unauthorized"}` |
+| User A sees user B's images | Impossible | ✅ The real user's gallery shows only their own images although the table also holds `test-user-001` items (`Query` by `sub`) |
+| Violating image detected | Admin email | ✅ |
+| Direct access to the S3 bucket | Blocked | ✅ 403 AccessDenied |
+
+**Limitation:** accurate block and false-positive rates need a larger labeled test set (e.g. 20–50 images). The toy-gun case shows the need for per-category thresholds or an admin review step for `REJECTED` images.
+
 ## Security tests
 
 | Test | Expected | Actual |
@@ -34,14 +48,18 @@ The DLQ test also proves **least privilege**: the error in the DLQ is `AccessDen
 | `GET /images` without a token | 401 Unauthorized | ✅ `{"message":"Unauthorized"}` |
 | Open a web-bucket file directly | 403 AccessDenied | ✅ only CloudFront can read it (OAC) |
 | Open an image Object URL directly | 403 AccessDenied | ✅ |
-| Open a presigned URL after 6 minutes | Request has expired | ✅ |
-| `http://` | Redirects to `https://` | ✅ |
+| Open a presigned URL after 6 minutes | Request has expired | ✅ 200 before expiry, 403 after |
+| `http://` | Redirects to `https://` | ✅ `301 Moved Permanently` |
 | Response headers | HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy | ✅ |
 | Sign-in | URL contains `code_challenge_method=S256` (PKCE) | ✅ |
 
 ![API without a token returns 401](../../images/5-workshop/27-1-api-no-token.jpg)
 
 ![Direct S3 access is denied](../../images/5-workshop/27-2-s3-web-direct-denied.jpg)
+
+![Direct image Object URL is denied](../../images/5-workshop/27-3-s3-image-direct-denied.jpg)
+
+![HTTP to HTTPS redirect and expired presigned URL](../../images/5-workshop/27-4-https-redirect-presigned-expired.jpg)
 
 The site is served from CloudFront's **SGN (Ho Chi Minh City)** edge, so Vietnamese users get fast loads even though the backend runs in us-east-1.
 
@@ -55,7 +73,12 @@ The site is served from CloudFront's **SGN (Ho Chi Minh City)** edge, so Vietnam
 **Cause:** at upload time the `img-002` item did not match, so the conditional `UpdateItem` was rejected; the first version of the code **published to SNS before** writing the DB, so the email still went out.
 **Lesson:** that design let "unknown" uploads spam the admin. **Fixed:** publish to SNS only after the DB stores `REJECTED`; if SNS fails, log an ERROR and emit `AlertPublishFailed` so an alarm catches it.
 
-![Email arrived while the item was still PENDING](../../images/5-workshop/t-1-bug-email-before-update.png)
+![The alert email was sent…](../../images/5-workshop/t-1-bug-email-before-update.png)
+*The alert email was sent…*
+
+![…while the item was still PENDING](../../images/5-workshop/t-2-bug-item-still-pending.png)
+*…while the item was still PENDING*
+
 
 ### 3. Alarms sent no email
 **Symptom:** the alarm went to ALARM but no email arrived; the alarm history said *"Failed to execute action"*.

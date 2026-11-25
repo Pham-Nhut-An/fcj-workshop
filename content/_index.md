@@ -25,7 +25,7 @@ chapter: false
 
 &emsp; **Internship Position:** First Cloud AI Journey (FCAJ) Intern
 
-&emsp; **Internship Duration:** From 14/09/2026 to 04/12/2026
+&emsp; **Internship Duration:** From 14/09/2026 to 14/12/2026
 
 ![avatar](images/avatar.png)
 

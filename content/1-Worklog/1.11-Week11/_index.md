@@ -8,20 +8,17 @@ pre: " <b> 1.11. </b> "
 
 ### Week 11 Objectives:
 
-* Complete the Capstone Workshop implementation.
-* Write the bilingual (vi/en) workshop documentation and deploy it on the Hugo static website.
+* Finish testing and documentation according to the FCAJ submission guide.
+* Prepare the team submission files (summary `.md`, architecture `.xml`) and complete the personal report.
 
 ### Tasks to be carried out this week:
 | Day | Task | Start Date | Completion Date | Reference Material |
 | --- | --- | --- | --- | --- |
-| 2 | - Build Capstone Workshop - Module 2: <br> &emsp; + Details to be updated. | 23/11/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
-| 3 | - Build Capstone Workshop - Module 3: <br> &emsp; + Details to be updated. | 24/11/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
-| 4 | - Build Capstone Workshop - Module 4: <br> &emsp; + Details to be updated. | 25/11/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
-| 5 | - Author Workshop Documentation: <br> &emsp; + Write comprehensive step-by-step instructions, prerequisites, and architecture diagrams <br> &emsp; + Capture clear screenshot illustrations for each lab step <br> &emsp; + Create automated cleanup guide and script to delete test resources. | 26/11/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
-| 6 | - Deploy Workshop Documentation Website: <br> &emsp; + Setup Hugo static site generator with the Hugo Learn/Workshop theme <br> &emsp; + Build and deploy the workshop site to GitHub Pages / Amazon S3 + CloudFront. | 27/11/2026 | Ongoing | <https://workshop-sample.awsfcaj.com/> |
+| 4 | - Read the submission rules, grading rubric and workshop standards on FCAJ Rules. <br> - Wrote the summary `.md` (Problem Statement, Proposed Solution, End-to-End Workflow, Additional, Cost) and exported the architecture diagram to `.xml`; fixed the IAM icon to the official AWS icon. <br> - Extra security tests: direct image Object URL → 403; HTTP → 301 redirect to HTTPS; expired presigned URL → 403 "Request has expired". <br> - Reviewed and updated the worklog, wrote the Self-Assessment and Sharing & Feedback (AI helped with wording). | 25/11/2026 | 25/11/2026 | <https://hcm-rules.awsfcaj.com/> |
+| 5 – 6 | - Re-export the architecture image, record the demo video, finish screenshots and push the website. <br> - Find and attend Community Event #3. | 26/11/2026 | Ongoing | - |
 
 ### Week 11 Achievements:
 
-* Ongoing
-* Ongoing
-* Ongoing
+* Team submission files ready (summary `.md` and architecture `.xml`).
+* All security tests in section 5.5 verified on the live system.
+* Ongoing: demo video, Event 3.

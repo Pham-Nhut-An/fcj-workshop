@@ -6,7 +6,7 @@ chapter: false
 pre: " <b> 1. </b> "
 ---
 
-Worklog này ghi lại những gì em đã học và làm trong 12 tuần thực tập chương trình First Cloud AI Journey (FCAJ) tại AWS, từ 14/09/2026 đến 04/12/2026. Mỗi tuần gồm mục tiêu, công việc theo từng ngày kèm tài liệu tham khảo và kết quả thực tế đạt được. Các tuần chưa kết thúc được ghi **Đang thực hiện** và sẽ được cập nhật vào cuối mỗi tuần.
+Worklog này ghi lại những gì em đã học và làm trong 12 tuần làm việc chính (14/09/2026 – 04/12/2026) của kỳ thực tập First Cloud AI Journey (FCAJ) tại AWS; kỳ thực tập kết thúc ngày 14/12/2026. Mỗi tuần gồm mục tiêu, công việc theo từng ngày kèm tài liệu tham khảo và kết quả thực tế đạt được. Các tuần chưa kết thúc được ghi **Đang thực hiện** và sẽ được cập nhật vào cuối mỗi tuần.
 
 **Tuần 1:** [Làm quen với AWS, IAM, EC2 & EBS](1.1-week1/)
 
@@ -26,8 +26,8 @@ Worklog này ghi lại những gì em đã học và làm trong 12 tuần thực
 
 **Tuần 9:** [Thử Amazon Rekognition & Proposal v2.0](1.9-week9/)
 
-**Tuần 10:** [Rà soát kiến trúc ImageGuard](1.10-week10/)
+**Tuần 10:** [Triển khai Workshop ImageGuard trên AWS](1.10-week10/)
 
-**Tuần 11:** [Triển khai & viết tài liệu Workshop](1.11-week11/)
+**Tuần 11:** [Kiểm thử, tài liệu nộp bài & hoàn thiện báo cáo](1.11-week11/)
 
-**Tuần 12:** [Review chéo & báo cáo cuối kỳ](1.12-week12/)
+**Tuần 12:** [Nộp bài & kết thúc thực tập](1.12-week12/)

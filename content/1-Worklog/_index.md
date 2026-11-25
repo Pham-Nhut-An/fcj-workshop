@@ -6,7 +6,7 @@ chapter: false
 pre: " <b> 1. </b> "
 ---
 
-This worklog records what I learned and did during the 12-week First Cloud AI Journey (FCAJ) internship at AWS, from 14/09/2026 to 04/12/2026. Each week lists the objectives, the daily tasks with reference materials, and the results actually achieved. Weeks that have not finished yet are marked **Ongoing** and will be updated at the end of each week.
+This worklog records what I learned and did during the 12 main working weeks (14/09/2026 – 04/12/2026) of the First Cloud AI Journey (FCAJ) internship at AWS, which ends on 14/12/2026. Each week lists the objectives, the daily tasks with reference materials, and the results actually achieved. Weeks that have not finished yet are marked **Ongoing** and will be updated at the end of each week.
 
 **Week 1:** [Getting familiar with AWS, IAM, EC2 & EBS](1.1-week1/)
 
@@ -26,8 +26,8 @@ This worklog records what I learned and did during the 12-week First Cloud AI Jo
 
 **Week 9:** [Amazon Rekognition testing & Proposal v2.0](1.9-week9/)
 
-**Week 10:** [ImageGuard architecture review](1.10-week10/)
+**Week 10:** [Deploying the ImageGuard workshop on AWS](1.10-week10/)
 
-**Week 11:** [Workshop implementation & documentation](1.11-week11/)
+**Week 11:** [Testing, submission files & report completion](1.11-week11/)
 
-**Week 12:** [Peer review & final report](1.12-week12/)
+**Week 12:** [Submission & end of internship](1.12-week12/)

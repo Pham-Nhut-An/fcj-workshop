@@ -8,20 +8,17 @@ pre: " <b> 1.11. </b> "
 
 ### Mục tiêu tuần 11:
 
-* Hoàn thành triển khai Workshop cuối kỳ.
-* Viết tài liệu Workshop song ngữ (vi/en) và triển khai lên website tĩnh Hugo.
+* Hoàn thiện kiểm thử và tài liệu Workshop theo hướng dẫn nộp bài của FCAJ.
+* Chuẩn bị bộ file nộp nhóm (summary `.md`, architecture `.xml`) và hoàn thiện báo cáo cá nhân.
 
 ### Các công việc cần triển khai trong tuần này:
 | Thứ | Công việc | Ngày bắt đầu | Ngày hoàn thành | Nguồn tài liệu |
 | --- | --- | --- | --- | --- |
-| 2 | - Xây dựng Workshop cuối kỳ - Module 2: <br> &emsp; + Chi tiết sẽ cập nhật sau. | 23/11/2026 | Đang thực hiện | <https://workshop-sample.awsfcaj.com/> |
-| 3 | - Xây dựng Workshop cuối kỳ - Module 3: <br> &emsp; + Chi tiết sẽ cập nhật sau. | 24/11/2026 | Đang thực hiện | <https://workshop-sample.awsfcaj.com/> |
-| 4 | - Xây dựng Workshop cuối kỳ - Module 4: <br> &emsp; + Chi tiết sẽ cập nhật sau. | 25/11/2026 | Đang thực hiện | <https://workshop-sample.awsfcaj.com/> |
-| 5 | - Viết tài liệu Workshop: <br> &emsp; + Viết hướng dẫn chi tiết từng bước, điều kiện tiên quyết và sơ đồ kiến trúc <br> &emsp; + Chụp ảnh màn hình minh họa rõ ràng cho từng bước lab <br> &emsp; + Viết hướng dẫn và script dọn dẹp tài nguyên test. | 26/11/2026 | Đang thực hiện | <https://workshop-sample.awsfcaj.com/> |
-| 6 | - Triển khai website tài liệu Workshop: <br> &emsp; + Thiết lập Hugo static site generator với theme Hugo Learn/Workshop <br> &emsp; + Build và deploy website workshop lên GitHub Pages / Amazon S3 + CloudFront. | 27/11/2026 | Đang thực hiện | <https://workshop-sample.awsfcaj.com/> |
+| 4 | - Đọc quy định nộp bài, barem chấm và tiêu chuẩn Workshop trên FCAJ Rules. <br> - Soạn file summary `.md` (Problem Statement, Proposed Solution, End-to-End Workflow, Additional, Cost) và xuất sơ đồ kiến trúc ra `.xml`; sửa icon IAM cho đúng chuẩn AWS. <br> - Kiểm thử bảo mật bổ sung: mở thẳng Object URL ảnh → 403; HTTP → 301 chuyển HTTPS; presigned URL hết hạn → 403 "Request has expired". <br> - Rà soát và cập nhật worklog, viết Tự đánh giá và Chia sẻ & Góp ý (có AI hỗ trợ trình bày). | 25/11/2026 | 25/11/2026 | <https://hcm-rules.awsfcaj.com/> |
+| 5 – 6 | - Xuất lại ảnh sơ đồ kiến trúc, quay video demo, hoàn thiện ảnh minh họa và push website. <br> - Tìm và tham gia Community Event #3. | 26/11/2026 | Đang thực hiện | - |
 
 ### Kết quả đạt được tuần 11:
 
-* Đang thực hiện
-* Đang thực hiện
-* Đang thực hiện
+* Đã có bộ file nộp nhóm (summary `.md` và architecture `.xml`).
+* Toàn bộ test bảo mật trong mục 5.5 đã được kiểm chứng thực tế.
+* Đang thực hiện: video demo, Event 3.

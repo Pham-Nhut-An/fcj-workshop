@@ -17,7 +17,7 @@ pre: " <b> 2. </b> "
 **ImageGuard** là một ứng dụng web serverless giúp các trang rao vặt, diễn đàn hoặc câu lạc bộ sinh viên **tự động kiểm duyệt và phân loại ảnh do người dùng tải lên**. Khi người dùng đăng ảnh, hệ thống dùng dịch vụ AI thị giác máy tính **Amazon Rekognition** để:
 
 1. **Kiểm duyệt (moderation):** phát hiện nội dung không phù hợp (bạo lực, nhạy cảm, vũ khí, chất cấm…). Ảnh vi phạm bị đánh dấu `REJECTED` và quản trị viên nhận email cảnh báo.
-2. **Gắn nhãn (labeling):** với ảnh hợp lệ, tự động sinh nhãn mô tả nội dung (ví dụ *Laptop*, *Bicycle*, *Book*) để người dùng **tìm kiếm ảnh theo nhãn**.
+2. **Gắn nhãn (labeling):** với ảnh hợp lệ, tự động sinh nhãn mô tả nội dung (ví dụ *Laptop*, *Bicycle*, *Book*) để người dùng biết nhanh ảnh chứa gì và quản trị viên dễ tra cứu khi cần.
 
 Kết quả được lưu vào **Amazon DynamoDB** và hiển thị trên giao diện web chỉ sau vài giây. Toàn bộ hệ thống chạy theo kiến trúc **hướng sự kiện (event-driven)** và **serverless**: không có máy chủ nào phải quản lý, chỉ trả tiền theo lượt sử dụng.
 
@@ -27,13 +27,13 @@ Kết quả được lưu vào **Amazon DynamoDB** và hiển thị trên giao d
 - Nếu không kiểm duyệt, ảnh vi phạm có thể xuất hiện công khai, gây ảnh hưởng tới người dùng và uy tín nền tảng.
 - Ảnh do người dùng tải lên thường **không có mô tả hay thẻ (tag)**, nên rất khó tìm lại.
 
-**Giải pháp:** tự động hóa cả hai việc bằng AI ngay khi ảnh được tải lên. Ảnh vi phạm bị chặn trước khi hiển thị; ảnh hợp lệ được gắn nhãn để tra cứu.
+**Giải pháp:** tự động hóa cả hai việc bằng AI ngay khi ảnh được tải lên. Ảnh vi phạm bị chặn trước khi hiển thị; ảnh hợp lệ được gắn nhãn mô tả nội dung.
 
 ## 3. Mục tiêu & Phạm vi
 
 ### 3.1. Mục tiêu
 
-1. Xây dựng pipeline tự động **Upload ảnh → AI kiểm duyệt → AI gắn nhãn → Lưu trữ → Hiển thị/Tìm kiếm** chạy hoàn toàn trên AWS.
+1. Xây dựng pipeline tự động **Upload ảnh → AI kiểm duyệt → AI gắn nhãn → Lưu trữ → Hiển thị** chạy hoàn toàn trên AWS.
 2. Áp dụng **AWS Well-Architected Framework**, đặc biệt là trụ cột **Security** (IAM Least Privilege, không public tài nguyên, không hard-code credentials).
 3. Giám sát đầy đủ bằng **Amazon CloudWatch** (Logs, Metrics, Alarms) và cảnh báo qua email bằng **Amazon SNS**.
 4. Giữ chi phí vận hành ở mức **khoảng 8–9 USD/tháng** với kịch bản tải thực tế (mục 6).
@@ -57,7 +57,7 @@ Kết quả được lưu vào **Amazon DynamoDB** và hiển thị trên giao d
 |---|---|
 | Ảnh JPG/PNG, ≤ 5 MB | Video, GIF động |
 | Kiểm duyệt nội dung + gắn nhãn tự động | **Nhận diện khuôn mặt** (dữ liệu sinh trắc học, nhạy cảm về quyền riêng tư) |
-| Tìm kiếm ảnh theo nhãn trong ảnh của chính người dùng | Tìm kiếm toàn văn trên toàn hệ thống |
+| Hiển thị trạng thái và nhãn của từng ảnh trong danh sách ảnh của chính người dùng | Tìm kiếm / lọc ảnh theo nhãn và tìm kiếm toàn văn (hướng mở rộng) |
 | Đăng ký/đăng nhập bằng Amazon Cognito | Giao diện quản trị riêng, khiếu nại kết quả kiểm duyệt |
 | 1 Region: **us-east-1** | Multi-Region, Disaster Recovery |
 
@@ -103,9 +103,9 @@ Số thứ tự trong bảng trùng với số trên các mũi tên ở Hình 1.
 | 7 | `process-image` → DynamoDB | Cập nhật bản ghi thành `APPROVED` (kèm nhãn) hoặc `REJECTED` (kèm lý do, khi có nhãn bị cấm với độ tin cậy ≥ 60%) |
 | 8 | `process-image` → SNS → Admin | Chỉ khi ảnh bị `REJECTED` **và** bước 7 đã ghi thành công: gửi email cảnh báo cho quản trị viên |
 | 9 | `process-image` → SQS DLQ | Nếu Lambda vẫn lỗi sau 2 lần thử lại, sự kiện được đưa vào **Dead-Letter Queue** để xử lý lại |
-| 10 | User → API Gateway | Web gọi `GET /images?label=...` kèm token (dùng chung đường mũi tên với bước 3) |
+| 10 | User → API Gateway | Web gọi `GET /images` kèm token (dùng chung đường mũi tên với bước 3) |
 | 10a | API Gateway → Lambda `get-images` | API Gateway gọi Lambda đọc kết quả |
-| 10b | `get-images` → DynamoDB | Truy vấn **chỉ theo `userId` lấy từ claim `sub` của token**, lọc theo nhãn nếu có; ảnh được hiển thị qua Presigned URL GET ngắn hạn, không public |
+| 10b | `get-images` → DynamoDB | Truy vấn **chỉ theo `userId` lấy từ claim `sub` của token**, sắp xếp ảnh mới nhất trước; ảnh **APPROVED** được hiển thị qua Presigned URL GET ngắn hạn, không public |
 | 11 | 3 Lambda → CloudWatch | Ghi log và metric (Embedded Metric Format) |
 | 12 | CloudWatch → SNS | Alarm (lỗi Lambda, DLQ có message, API 5xx…) gửi email qua SNS |
 | — | IAM → 3 Lambda | Mỗi Lambda có một **IAM execution role** riêng theo Least Privilege (mục 4.3) |
@@ -142,7 +142,7 @@ Phương án ban đầu dùng **Amazon Bedrock** để xử lý hóa đơn. Khi 
 
 ## 5. Kế hoạch & Timeline
 
-Thời gian thực tập: 14/09/2026 – 04/12/2026. Hạn nộp Workshop dự kiến: **19/11/2026** (15 ngày trước ngày cần mộc).
+Thời gian thực tập: 14/09/2026 – 14/12/2026. Hạn nộp Workshop: **30/11/2026** (theo thông báo của FCAJ).
 
 ### 5.1. Phân công vai trò
 
@@ -164,11 +164,11 @@ Thời gian thực tập: 14/09/2026 – 04/12/2026. Hạn nộp Workshop dự k
 | Week 8 | 02/11 – 08/11 | Xin tăng quota (bị từ chối); đổi sang Rekognition, viết Proposal v2.0; tạo S3, DynamoDB, IAM Role; viết Lambda `process-image` + S3 Event | Proposal v2.0, pipeline xử lý ảnh chạy được |
 | Week 9 | 09/11 – 15/11 | Cognito, API Gateway, 2 Lambda API; web tĩnh + CloudFront; CloudWatch metrics/alarms/dashboard, SNS, DLQ; kiểm thử; AWS Pricing Calculator; quay video demo | Demo end-to-end, video, bảng chi phí |
 | Week 10 | 16/11 – 19/11 | Viết mục 5-Workshop song ngữ (step-by-step, testing, clean-up), chụp screenshot, hoàn thiện sơ đồ kiến trúc, rà soát chéo | **Nộp workshop 19/11** |
-| Week 10–12 | 20/11 – 04/12 | Sửa theo góp ý mentor, hoàn thiện blog và worklog, dọn tài nguyên | Báo cáo hoàn chỉnh |
+| Week 10–12 | 20/11 – 14/12 | Sửa theo góp ý mentor, hoàn thiện blog và worklog, dọn tài nguyên | Báo cáo hoàn chỉnh |
 
 ## 6. Dự toán chi phí (Cost Estimation)
 
-**Kịch bản tải:** một diễn đàn/trang rao vặt nhỏ nhận khoảng **3.000 ảnh/tháng** (~100 ảnh/ngày), ảnh trung bình 1 MB, khoảng 3% ảnh vi phạm, khoảng 30.000 lượt xem/tìm kiếm mỗi tháng. Region **us-east-1**, giá on-demand, **chưa trừ Free Tier/credit**.
+**Kịch bản tải:** một diễn đàn/trang rao vặt nhỏ nhận khoảng **3.000 ảnh/tháng** (~100 ảnh/ngày), ảnh trung bình 1 MB, khoảng 3% ảnh vi phạm, khoảng 30.000 lượt xem mỗi tháng. Region **us-east-1**, giá on-demand, **chưa trừ Free Tier/credit**.
 
 | Dịch vụ | Giả định | Chi phí ước tính (USD/tháng) |
 |---|---|---|
@@ -215,7 +215,7 @@ Trong giai đoạn phát triển và demo (dự kiến < 300 ảnh), chi phí Re
 
 ## 8. Kết quả kỳ vọng
 
-- Một ứng dụng web chạy thật: đăng nhập → upload ảnh → ảnh vi phạm bị chặn kèm email cảnh báo, ảnh hợp lệ được gắn nhãn và tìm kiếm được.
+- Một ứng dụng web chạy thật: đăng nhập → upload ảnh → ảnh vi phạm bị chặn kèm email cảnh báo, ảnh hợp lệ được gắn nhãn và hiển thị trong danh sách ảnh của người dùng.
 - Hệ thống giám sát gồm CloudWatch Dashboard, Alarms và email cảnh báo.
 - Tài liệu workshop song ngữ, có thể triển khai lại từ đầu, kèm phần Testing, Troubleshooting và Clean-up.
 - Nhóm nắm vững các kiến thức thực tế: kiến trúc event-driven serverless, IAM Least Privilege, dịch vụ AI của AWS, giám sát và tối ưu chi phí, cũng như cách xử lý khi một dịch vụ bị giới hạn quota.
