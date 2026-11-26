@@ -53,6 +53,16 @@ pre: " <b> 5.3. </b> "
 
 Rekognition dùng `Resource: "*"` vì `DetectModerationLabels` / `DetectLabels` không hỗ trợ resource-level permission; bù lại chỉ cấp đúng 2 action.
 
+## Sao lưu dữ liệu
+
+Bảng `imageguard-images` bật **Point-in-time recovery (PITR – khôi phục về thời điểm bất kỳ)**: có thể khôi phục bảng về bất kỳ giây nào trong 35 ngày gần nhất nếu dữ liệu bị xóa hoặc ghi sai. Ảnh gốc nằm trong S3 (độ bền 99,999999999%), nên khi cần có thể khôi phục cả metadata lẫn ảnh.
+
+```bash
+aws dynamodb update-continuous-backups --table-name imageguard-images \
+  --point-in-time-recovery-specification PointInTimeRecoveryEnabled=true
+# Kết quả: ENABLED
+```
+
 ## Vì sao không dùng VPC?
 
 Không có cơ sở dữ liệu hay máy chủ nào cần mạng riêng. Lambda gọi các dịch vụ AWS qua HTTPS và được xác thực bằng IAM. Đưa Lambda vào VPC sẽ tốn thêm NAT Gateway hoặc VPC Endpoint (vài chục USD/tháng) mà không tăng bảo mật đáng kể.

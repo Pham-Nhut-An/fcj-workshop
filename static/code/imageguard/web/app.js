@@ -129,6 +129,8 @@
       if (!put.ok) throw new Error(`S3 trả về ${put.status}`);
       showMessage("Đã tải lên, đang kiểm duyệt…");
       $("fileInput").value = "";
+      resetIcon();
+      showSelected(null);
       await loadImages();
     } catch (err) {
       showMessage(err.message, true);
@@ -147,50 +149,89 @@
 
   // ---------- UI ----------
   // Dung textContent / createElement (khong innerHTML voi du lieu) -> tranh XSS
+  const STATUS_TEXT = { APPROVED: "Đã duyệt", REJECTED: "Bị chặn", PENDING: "Đang kiểm duyệt" };
+
+  function el(tag, className, text) {
+    const e = document.createElement(tag);
+    if (className) e.className = className;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  function renderStats(images) {
+    const stats = $("stats");
+    stats.replaceChildren();
+    const count = (s) => images.filter((i) => i.status === s).length;
+    for (const [label, n] of [["Tổng", images.length], ["Đã duyệt", count("APPROVED")], ["Bị chặn", count("REJECTED")]]) {
+      const s = el("span", "stat", `${label} `);
+      s.append(el("strong", "", String(n)));
+      stats.append(s);
+    }
+  }
+
   function renderGallery(images) {
     const gallery = $("gallery");
     gallery.replaceChildren();
+    renderStats(images);
     if (!images.length) {
-      const p = document.createElement("p");
-      p.className = "muted";
-      p.textContent = "Chưa có ảnh nào.";
-      gallery.append(p);
+      gallery.append(el("p", "empty", "Chưa có ảnh nào. Hãy tải ảnh đầu tiên lên."));
       return;
     }
     for (const img of images) {
-      const item = document.createElement("div");
-      item.className = "item";
-
-      const thumb = document.createElement("div");
-      thumb.className = "thumb";
+      const item = el("div", "item");
+      const thumb = el("div", "thumb");
       if (img.status === "APPROVED" && img.imageUrl) {
-        const el = document.createElement("img");
-        el.src = img.imageUrl;
-        el.alt = img.labels.join(", ");
-        thumb.append(el);
+        const pic = el("img");
+        pic.src = img.imageUrl;
+        pic.alt = img.labels.join(", ");
+        pic.loading = "lazy";
+        thumb.append(pic);
       } else if (img.status === "REJECTED") {
+        thumb.classList.add("blocked");
         thumb.textContent = `Ảnh bị chặn: ${img.blockedCategories.join(", ") || "không hợp lệ"}`;
       } else {
+        thumb.classList.add("waiting");
         thumb.textContent = "Đang kiểm duyệt…";
       }
 
-      const meta = document.createElement("div");
-      meta.className = "meta";
-      const badge = document.createElement("span");
-      badge.className = `badge ${img.status}`;
-      badge.textContent = img.status;
-      const time = document.createElement("div");
-      time.className = "muted";
-      time.textContent = img.createdAt ? new Date(img.createdAt).toLocaleString("vi-VN") : "";
-      const tags = document.createElement("div");
-      tags.className = "tags";
-      tags.textContent = img.labels.length ? img.labels.join(" · ") : "";
-      meta.append(badge, time, tags);
-
+      const meta = el("div", "meta");
+      const row = el("div", "row");
+      row.append(
+        el("span", `badge ${img.status}`, STATUS_TEXT[img.status] || img.status),
+        el("span", "muted", img.createdAt ? new Date(img.createdAt).toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "short" }) : "")
+      );
+      meta.append(row);
+      if (img.labels.length) {
+        const tags = el("div", "tags");
+        for (const l of img.labels) tags.append(el("span", "tag", l));
+        meta.append(tags);
+      }
       item.append(thumb, meta);
       gallery.append(item);
     }
   }
+
+  // Xem truoc anh da chon trong o keo tha (URL.createObjectURL: anh chi nam tren may nguoi dung)
+  let previewUrl = null;
+  function showSelected(file) {
+    const icon = $("dropIcon");
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = null;
+    if (!file) {
+      $("fileName").textContent = "Chọn hoặc kéo thả ảnh vào đây";
+      return;
+    }
+    $("fileName").textContent = file.name;
+    if (file.type === "image/jpeg") {
+      previewUrl = URL.createObjectURL(file);
+      const pic = el("img");
+      pic.src = previewUrl;
+      pic.alt = "";
+      icon.replaceChildren(pic);
+    }
+  }
+  const defaultIcon = $("dropIcon").cloneNode(true).childNodes;
+  const resetIcon = () => $("dropIcon").replaceChildren(...[...defaultIcon].map((n) => n.cloneNode(true)));
 
   function showMessage(text, isError = false) {
     const el = $("message");
@@ -206,6 +247,14 @@
     $("logoutBtn").classList.toggle("hidden", !t);
     $("user").textContent = t ? emailFromIdToken(t.id_token) : "";
   }
+
+  $("fileInput").addEventListener("change", (e) => {
+    resetIcon();
+    showSelected(e.target.files[0] || null);
+  });
+  const drop = $("drop");
+  ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, () => drop.classList.add("over")));
+  ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, () => drop.classList.remove("over")));
 
   $("loginBtn").addEventListener("click", login);
   $("logoutBtn").addEventListener("click", logout);

@@ -53,6 +53,16 @@ pre: " <b> 5.3. </b> "
 
 Rekognition uses `Resource: "*"` because `DetectModerationLabels` / `DetectLabels` do not support resource-level permissions; only those 2 actions are granted.
 
+## Data backup
+
+The `imageguard-images` table has **Point-in-time recovery (PITR)** enabled: it can be restored to any second within the last 35 days if data is deleted or overwritten by mistake. The original images live in S3 (99.999999999% durability), so both metadata and images can be recovered.
+
+```bash
+aws dynamodb update-continuous-backups --table-name imageguard-images \
+  --point-in-time-recovery-specification PointInTimeRecoveryEnabled=true
+# Result: ENABLED
+```
+
 ## Why no VPC?
 
 There is no database or server that needs a private network. Lambda calls AWS services over HTTPS, authenticated by IAM. Putting Lambda in a VPC would add a NAT Gateway or VPC endpoints (tens of USD per month) without a meaningful security gain.
