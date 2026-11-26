@@ -227,7 +227,7 @@ Tạo 2 role riêng (least privilege) rồi 2 function Python 3.12 arm64, 128 MB
 2. **CloudFront → Create distribution**: origin S3 bucket web với **OAC**, Redirect HTTP to HTTPS, CachingOptimized, Response headers **SecurityHeadersPolicy**, Default root object `index.html`, WAF không bật.
 3. Bucket policy chỉ cho `cloudfront.amazonaws.com` với `AWS:SourceArn` = ARN distribution.
 
-![Hình 3.2 – Trang ImageGuard qua CloudFront](../../../images/5-workshop/21-4-web-first-load.jpg)
+![Hình 3.2 – Trang ImageGuard qua CloudFront](../../../images/5-workshop/21-5-web-first-load-v2.jpg)
 *Hình 3.2 – Trang ImageGuard qua CloudFront*
 
 
@@ -248,7 +248,7 @@ User pool `imageguard-users`, đăng nhập bằng **email**, cho tự đăng k�
 - CORS cho bucket ảnh: cho phép `PUT, GET` từ domain CloudFront.
 - Điền `config.js` (Cognito domain, client ID, redirect URI, API URL), upload lại, tạo CloudFront invalidation `/*`.
 
-![Hình 3.4 – Kết quả cuối: người dùng đăng nhập, tải ảnh lên và xem trạng thái APPROVED / REJECTED](../../../images/5-workshop/26-3-web-gallery.png)
+![Hình 3.4 – Kết quả cuối: người dùng đăng nhập, tải ảnh lên và xem trạng thái APPROVED / REJECTED](../../../images/5-workshop/26-4-web-gallery-v2.jpg)
 *Hình 3.4 – Kết quả cuối: người dùng đăng nhập, tải ảnh lên và xem trạng thái APPROVED / REJECTED*
 
 

@@ -17,7 +17,7 @@ pre: " <b> 5.5. </b> "
 | Unknown key | Upload a file with no PENDING item | No new item, no email |
 | DLQ | Set a wrong `TABLE_NAME`, invoke asynchronously | After 2 retries the DLQ holds a `RetriesExhausted` message, `approximateInvokeCount: 3` |
 
-![Gallery: APPROVED and REJECTED images](../../images/5-workshop/26-3-web-gallery.png)
+![Gallery: APPROVED and REJECTED images](../../images/5-workshop/26-4-web-gallery-v2.jpg)
 
 {{% notice note %}}
 **False positive:** a wooden toy gun is detected as *Violence/Weapons* with ~97% confidence. Improvements: raise `MIN_MODERATION_CONFIDENCE` for specific categories, or add an admin review step for `REJECTED` images.

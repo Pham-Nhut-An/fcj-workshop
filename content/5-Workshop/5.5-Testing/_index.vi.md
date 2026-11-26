@@ -17,7 +17,7 @@ pre: " <b> 5.5. </b> "
 | Key lạ | Upload file không có item PENDING | Không tạo item mới, không gửi email |
 | DLQ | Đổi `TABLE_NAME` sai rồi gọi Lambda bất đồng bộ | Sau 2 lần retry, DLQ có message `RetriesExhausted`, `approximateInvokeCount: 3` |
 
-![Gallery: ảnh APPROVED và REJECTED](../../../images/5-workshop/26-3-web-gallery.png)
+![Gallery: ảnh APPROVED và REJECTED](../../../images/5-workshop/26-4-web-gallery-v2.jpg)
 
 {{% notice note %}}
 **False positive:** súng đồ chơi bằng gỗ bị nhận là *Violence/Weapons* với độ tin cậy ~97%. Hướng cải thiện: tăng `MIN_MODERATION_CONFIDENCE` cho danh mục cụ thể, hoặc thêm bước quản trị viên duyệt lại ảnh `REJECTED`.
