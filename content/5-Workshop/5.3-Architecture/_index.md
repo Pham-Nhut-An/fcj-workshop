@@ -63,6 +63,13 @@ aws dynamodb update-continuous-backups --table-name imageguard-images \
 # Result: ENABLED
 ```
 
+## Why Region us-east-1?
+
+- **Low price:** us-east-1 (N. Virginia) usually has the lowest prices of all Regions, including Amazon Rekognition, which is most of the cost (USD 5.91 of 8.37 per month, see section 5.6).
+- **All services available:** every service used in the workshop (Rekognition Content Moderation, Cognito Managed Login, HTTP API…) is available in us-east-1.
+- **Latency is not the bottleneck:** Vietnam to us-east-1 is about 200 ms, but the static site is served by CloudFront from an edge location near the user; the slowest step is AI image analysis (about 0.5–1 second), not the network.
+- **For a real deployment for Vietnamese users:** move to Singapore (ap-southeast-1) to cut latency and meet personal-data rules. The Region and resource names are environment variables, so no code changes are needed.
+
 ## Why no VPC?
 
 There is no database or server that needs a private network. Lambda calls AWS services over HTTPS, authenticated by IAM. Putting Lambda in a VPC would add a NAT Gateway or VPC endpoints (tens of USD per month) without a meaningful security gain.

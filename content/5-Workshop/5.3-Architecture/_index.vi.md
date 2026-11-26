@@ -63,6 +63,13 @@ aws dynamodb update-continuous-backups --table-name imageguard-images \
 # Kết quả: ENABLED
 ```
 
+## Vì sao chọn Region us-east-1?
+
+- **Giá thấp:** us-east-1 (N. Virginia) thường có giá thấp nhất trong các Region, kể cả Amazon Rekognition, dịch vụ chiếm phần lớn chi phí (5,91/8,37 USD mỗi tháng, xem mục 5.6).
+- **Đủ dịch vụ:** tất cả dịch vụ dùng trong workshop (Rekognition Content Moderation, Cognito Managed Login, HTTP API…) đều có sẵn ở us-east-1.
+- **Độ trễ không đáng kể:** từ Việt Nam tới us-east-1 khoảng 200 ms, nhưng web tĩnh được CloudFront phục vụ từ edge location gần người dùng; khâu chậm nhất là AI xử lý ảnh (khoảng 0,5–1 giây), không phải đường mạng.
+- **Khi triển khai thật cho người dùng Việt Nam:** nên chuyển sang Singapore (ap-southeast-1) để giảm độ trễ và đáp ứng quy định về dữ liệu cá nhân. Tên Region và tài nguyên nằm trong biến môi trường nên không phải sửa code.
+
 ## Vì sao không dùng VPC?
 
 Không có cơ sở dữ liệu hay máy chủ nào cần mạng riêng. Lambda gọi các dịch vụ AWS qua HTTPS và được xác thực bằng IAM. Đưa Lambda vào VPC sẽ tốn thêm NAT Gateway hoặc VPC Endpoint (vài chục USD/tháng) mà không tăng bảo mật đáng kể.
