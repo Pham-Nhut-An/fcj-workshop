@@ -32,14 +32,32 @@ Bài test DLQ còn cho thấy **least privilege** hoạt động: lỗi trong DL
 | Tiêu chí | Mục tiêu | Kết quả đo |
 |---|---|---|
 | Thời gian xử lý 1 ảnh | ≤ 10 giây | ✅ Khoảng 0,5–1 giây (metric `ProcessingLatency` trên dashboard) |
-| Ảnh vi phạm bị chặn đúng | ≥ 90% | ⚠️ Chưa đủ mẫu để kết luận: bộ ảnh thử nghiệm hiện chỉ có 2 ảnh |
-| Ảnh hợp lệ bị chặn nhầm | ≤ 10% | ⚠️ 1/2 ảnh bị chặn nhầm (súng gỗ đồ chơi → Violence/Weapons 98%); mẫu quá nhỏ, cần bộ thử lớn hơn |
+| Ảnh vi phạm bị chặn đúng | ≥ 90% | ❌ 2/3 (67%): chặn đúng 2 ảnh súng, bỏ sót 1 ảnh hút thuốc |
+| Ảnh hợp lệ bị chặn nhầm | ≤ 10% | ❌ 1/8 (12,5%): súng gỗ đồ chơi bị chặn (Violence/Weapons 98%); súng nước đồ chơi thì được duyệt |
 | Chưa đăng nhập gọi API | Bị từ chối (401) | ✅ `{"message":"Unauthorized"}` |
 | Người dùng A xem ảnh của B | Không thể | ✅ Gallery của người dùng thật chỉ hiện ảnh của chính họ, dù bảng có cả item của `test-user-001` (`Query` theo `sub`) |
 | Phát hiện ảnh vi phạm | Gửi email quản trị viên | ✅ |
 | Truy cập trực tiếp bucket S3 | Bị chặn | ✅ 403 AccessDenied |
 
-**Hạn chế:** tỉ lệ chặn đúng và chặn nhầm cần một bộ ảnh thử nghiệm lớn hơn (ví dụ 20–50 ảnh có gán nhãn đúng/sai) để đo chính xác. Ví dụ súng gỗ đồ chơi cho thấy cần thêm ngưỡng riêng cho từng danh mục hoặc bước quản trị viên duyệt lại ảnh `REJECTED`.
+Hai tỉ lệ trên tính trên **12 ảnh**: 2 ảnh thử ban đầu và 10 ảnh lấy từ Wikimedia Commons, chạy qua pipeline thật bằng script [`batch_test.sh`](/fcj-workshop/code/imageguard/scripts/batch_test.sh) (ngày 26/11/2026).
+
+| Nhóm | Ảnh | Mong đợi | Kết quả | Nhãn / danh mục |
+|---|---|---|---|---|
+| Thường | Laptop trên bàn | APPROVED | ✅ APPROVED | Furniture, Table, Desk, Computer |
+| Thường | Xe đạp | APPROVED | ✅ APPROVED | Wheel, Bicycle, Transportation |
+| Thường | Pizza | APPROVED | ✅ APPROVED | Food, Meal, Pizza |
+| Thường | Mèo | APPROVED | ✅ APPROVED | Animal, Abyssinian, Cat |
+| Rượu bia | Chai bia | APPROVED (Alcohol được cho qua) | ✅ APPROVED | Alcohol, Beer, Bottle |
+| Thuốc lá | Người hút thuốc cầm cuốc | REJECTED | ❌ APPROVED | Moderation chỉ thấy `Smoking` 27% (< ngưỡng 60%); DetectLabels nhận nhầm cái cuốc là `Rifle` |
+| Vũ khí | Súng ngắn | REJECTED | ✅ REJECTED | Violence → Weapons |
+| Vũ khí | Lính cầm súng trường | REJECTED | ✅ REJECTED | Violence → Weapons, Weapon Violence |
+| Dễ nhầm | Súng nước đồ chơi | APPROVED | ✅ APPROVED | Toy, Water Gun |
+| Dễ nhầm | Hóa trang máu giả Halloween | Tùy chính sách | REJECTED | Violence → Blood & Gore (không tính vào 2 tỉ lệ) |
+
+**Nhận xét và hướng cải thiện:**
+- Ngưỡng 60% bắt tốt vũ khí rõ ràng, nhưng bỏ sót hút thuốc khi điếu thuốc nhỏ trong khung hình. Có thể đặt ngưỡng riêng cho từng danh mục, ví dụ 25% cho `Drugs & Tobacco`, và chấp nhận chặn nhầm nhiều hơn.
+- Đồ chơi hình súng có lúc bị chặn, có lúc không. Máu giả bị coi là Blood & Gore. Với các trường hợp này nên có bước quản trị viên duyệt lại ảnh `REJECTED` thay vì chặn hẳn.
+- 12 ảnh vẫn là mẫu nhỏ. Kết quả cho thấy xu hướng, chưa phải độ chính xác thống kê.
 
 ## Kiểm thử bảo mật
 

@@ -32,14 +32,32 @@ The DLQ test also proves **least privilege**: the error in the DLQ is `AccessDen
 | Criterion | Target | Measured result |
 |---|---|---|
 | Processing time per image | ≤ 10 seconds | ✅ About 0.5–1 second (`ProcessingLatency` metric on the dashboard) |
-| Violating images blocked | ≥ 90% | ⚠️ Not enough samples to conclude: the current test set has only 2 images |
-| Valid images blocked by mistake | ≤ 10% | ⚠️ 1 of 2 images blocked by mistake (wooden toy gun → Violence/Weapons 98%); the sample is too small, a larger test set is needed |
+| Violating images blocked | ≥ 90% | ❌ 2/3 (67%): both gun images blocked, one smoking image missed |
+| Valid images blocked by mistake | ≤ 10% | ❌ 1/8 (12.5%): a wooden toy gun was blocked (Violence/Weapons 98%); a toy water gun was approved |
 | API call without sign-in | Rejected (401) | ✅ `{"message":"Unauthorized"}` |
 | User A sees user B's images | Impossible | ✅ The real user's gallery shows only their own images although the table also holds `test-user-001` items (`Query` by `sub`) |
 | Violating image detected | Admin email | ✅ |
 | Direct access to the S3 bucket | Blocked | ✅ 403 AccessDenied |
 
-**Limitation:** accurate block and false-positive rates need a larger labeled test set (e.g. 20–50 images). The toy-gun case shows the need for per-category thresholds or an admin review step for `REJECTED` images.
+Both rates are measured on **12 images**: the 2 initial test images plus 10 images from Wikimedia Commons, run through the real pipeline with the [`batch_test.sh`](/fcj-workshop/code/imageguard/scripts/batch_test.sh) script (26/11/2026).
+
+| Group | Image | Expected | Result | Labels / categories |
+|---|---|---|---|---|
+| Normal | Laptop on a desk | APPROVED | ✅ APPROVED | Furniture, Table, Desk, Computer |
+| Normal | Bicycle | APPROVED | ✅ APPROVED | Wheel, Bicycle, Transportation |
+| Normal | Pizza | APPROVED | ✅ APPROVED | Food, Meal, Pizza |
+| Normal | Cat | APPROVED | ✅ APPROVED | Animal, Abyssinian, Cat |
+| Alcohol | Beer bottle | APPROVED (Alcohol allowed) | ✅ APPROVED | Alcohol, Beer, Bottle |
+| Tobacco | Man smoking, holding a pickaxe | REJECTED | ❌ APPROVED | Moderation only found `Smoking` at 27% (< 60% threshold); DetectLabels mistook the pickaxe for a `Rifle` |
+| Weapons | Handgun | REJECTED | ✅ REJECTED | Violence → Weapons |
+| Weapons | Soldier with a rifle | REJECTED | ✅ REJECTED | Violence → Weapons, Weapon Violence |
+| Tricky | Toy water gun | APPROVED | ✅ APPROVED | Toy, Water Gun |
+| Tricky | Halloween fake-blood makeup | Policy dependent | REJECTED | Violence → Blood & Gore (not counted in either rate) |
+
+**Findings and improvements:**
+- The 60% threshold catches obvious weapons but misses smoking when the cigarette is small in the frame. Per-category thresholds (for example 25% for `Drugs & Tobacco`) would help, at the cost of more false positives.
+- Gun-shaped toys are sometimes blocked, sometimes not, and fake blood counts as Blood & Gore. These cases call for an admin review step for `REJECTED` images instead of a hard block.
+- 12 images is still a small sample: the results show a trend, not statistical accuracy.
 
 ## Security tests
 
