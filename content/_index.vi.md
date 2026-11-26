@@ -21,6 +21,8 @@ chapter: false
 
 &emsp; **MSSV:** SE192571
 
+&emsp; **Lớp:** AITeamFPT
+
 &emsp; **Công ty thực tập:** Công ty TNHH Amazon Web Services Việt Nam
 
 &emsp; **Vị trí thực tập:** First Cloud AI Journey (FCAJ) Intern

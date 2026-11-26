@@ -6,19 +6,32 @@ chapter: false
 pre: " <b> 6. </b> "
 ---
 
-| No. | Criterion | Good | Fair | Average | Comment |
+# Self-Assessment
+
+During my internship at **Amazon Web Services Vietnam Company Limited** (First Cloud AI Journey program) from **14/09/2026** to **14/12/2026**, I learned and applied cloud computing knowledge to a real project.
+As team lead of AITeamFPT, I deployed the **ImageGuard** workshop – an automated image moderation and labeling system built with Amazon Rekognition on a serverless architecture. Through it I improved my skills in AWS architecture design, IAM security, troubleshooting deployments, writing bilingual technical documentation and teamwork.
+
+In terms of work ethic, I tried to complete assigned tasks, followed the office rules and kept my worklog true to reality, including the weeks when I did less.
+
+To reflect objectively on my internship, I evaluate myself on the following criteria:
+
+| No. | Criteria | Description | Good | Fair | Average |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Professional knowledge |  | ✅ |  | I understand the services used in the workshop (S3, Lambda, DynamoDB, API Gateway, Cognito, CloudFront, CloudWatch, Rekognition). Many labs in weeks 1–6 were studied in theory only. |
-| 2 | Self-learning & research |  | ✅ |  | I read the AWS documentation myself to switch from Amazon Bedrock to Amazon Rekognition. Some weeks were uneven; early week 10 I did almost nothing. |
-| 3 | Proactiveness | ✅ |  |  | I found an alternative when the Bedrock quota increase was denied and added extra security tests on my own. |
-| 4 | Discipline & compliance | ✅ |  |  | I follow the office rules and keep the worklog true to reality, including weeks with little progress. |
-| 5 | Communication |  | ✅ |  | I can discuss with the team and the mentor; I need to practise explaining the architecture more concisely. |
-| 6 | Teamwork | ✅ |  |  | Our 5-member team agreed on one shared topic and shares the Proposal, Workshop and 3 blog posts. |
-| 7 | Problem solving | ✅ |  |  | I found and fixed deployment issues: a wrong ARN in an IAM policy, SNS encryption blocking alarm emails, a Hugo build error. |
-| 8 | Contribution to the workshop | ✅ |  |  | I deployed ImageGuard on my AWS account, wrote the bilingual workshop guide and prepared the team submission files. |
+| 1 | **Professional knowledge & skills** | Understanding of the field, applying knowledge in practice, proficiency with tools, work quality | ☐ | ✅ | ☐ |
+| 2 | **Ability to learn** | Absorbing new knowledge and learning quickly | ☐ | ✅ | ☐ |
+| 3 | **Proactiveness** | Taking initiative, seeking tasks without waiting for instructions | ✅ | ☐ | ☐ |
+| 4 | **Sense of responsibility** | Completing tasks on time and ensuring quality | ✅ | ☐ | ☐ |
+| 5 | **Discipline** | Following schedules, rules and work processes | ✅ | ☐ | ☐ |
+| 6 | **Progressive mindset** | Willingness to receive feedback and improve | ✅ | ☐ | ☐ |
+| 7 | **Communication** | Presenting ideas and reporting work clearly | ☐ | ✅ | ☐ |
+| 8 | **Teamwork** | Working effectively with colleagues and in teams | ✅ | ☐ | ☐ |
+| 9 | **Professional conduct** | Respecting colleagues, partners and the work environment | ✅ | ☐ | ☐ |
+| 10 | **Problem-solving skills** | Identifying problems, proposing solutions, creativity | ✅ | ☐ | ☐ |
+| 11 | **Contribution to project/team** | Work effectiveness, improvement ideas, recognition from the team | ✅ | ☐ | ☐ |
+| 12 | **Overall** | General evaluation of the whole internship | ☐ | ✅ | ☐ |
 
-### Areas to improve
+### Needs Improvement
 
-* Practise the labs regularly instead of only reading theory.
-* Keep a steady study pace every week.
-* Practise presenting the architecture and answering technical questions concisely.
+* Practice labs regularly instead of only reading theory; many labs in weeks 1–6 were only studied in theory.
+* Keep a steady weekly study rhythm (I did almost nothing early in week 10).
+* Practice presenting the architecture and answering technical questions concisely.
