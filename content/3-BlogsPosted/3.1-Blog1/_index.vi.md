@@ -39,7 +39,7 @@ Giải pháp có 8 agent phối hợp trong các **workflow (luồng xử lý)**
 - Chi phí chủ yếu nằm ở việc gọi mô hình (khoảng 85%)
 - Nên dùng **Bedrock Guardrails (rào chắn an toàn)** với tài liệu nhạy cảm
 
-Mình đọc bài này để hiểu hướng đi mới: xử lý tài liệu không chỉ là OCR rồi gọi LLM, mà còn có agent biết học từ lần sửa trước.
+Điểm rút ra: xử lý tài liệu không chỉ là OCR rồi gọi LLM, mà còn có agent biết học từ lần sửa trước.
 
 **Nguồn:** *Build self-improving document processing using Amazon Bedrock AgentCore* – AWS Machine Learning Blog (14/10/2026)
 <https://aws.amazon.com/blogs/machine-learning/build-self-improving-document-processing-using-amazon-bedrock-agentcore/>

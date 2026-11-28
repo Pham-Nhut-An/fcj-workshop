@@ -16,7 +16,7 @@ pre: " <b> 1.4. </b> "
 | 2 | - Tìm hiểu Amazon Route 53 (dịch vụ DNS được quản lý): <br> &emsp; + Đăng ký tên miền, Public & Private Hosted Zones <br> &emsp; + Các loại bản ghi DNS (A, AAAA, CNAME, Alias) <br> &emsp; + Routing Policy: Simple, Weighted, Latency-based, Failover, Geolocation. | 05/10/2026 | 05/10/2026 | <https://cloudjourney.awsstudygroup.com/> |
 | 3 | - Tìm hiểu Amazon CloudFront (Content Delivery Network - CDN): <br> &emsp; + Edge Locations, Regional Edge Caches <br> &emsp; + Thiết lập Distribution với S3 và Custom HTTP origin <br> &emsp; + Origin Access Control (OAC) để bảo vệ S3 bucket origin <br> &emsp; + Tích hợp chứng chỉ SSL/TLS qua AWS Certificate Manager (ACM). | 06/10/2026 | 06/10/2026 | <https://cloudjourney.awsstudygroup.com/> |
 | 4 | - Tìm hiểu Edge Computing & tăng tốc nội dung: <br> &emsp; + Lambda@Edge và CloudFront Functions để sửa header & chuyển hướng <br> &emsp; + Tối ưu hiệu năng với caching behavior và nén (compression) của CloudFront. | 07/10/2026 | 07/10/2026 | <https://cloudjourney.awsstudygroup.com/> |
-| 6 | - Bắt đầu tìm ý tưởng cho Proposal dự án thực tập (Proposal v1.0 hoàn thành ở tuần 7). | 09/10/2026 | 28/10/2026 | <https://workshop-sample.awsfcaj.com/> |
+| 6 | - Bắt đầu tìm ý tưởng cho Proposal dự án thực tập (Proposal đầu tiên hoàn thành ở tuần 7). | 09/10/2026 | 28/10/2026 | <https://workshop-sample.awsfcaj.com/> |
 
 ### Kết quả đạt được tuần 4:
 

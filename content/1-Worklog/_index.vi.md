@@ -24,7 +24,7 @@ Worklog này ghi lại những gì em đã học và làm trong 12 tuần làm v
 
 **Tuần 8:** [IaC, thử Amazon Bedrock & 3 bài blog](1.8-week8/)
 
-**Tuần 9:** [Thử Amazon Rekognition & Proposal v2.0](1.9-week9/)
+**Tuần 9:** [Thử Amazon Rekognition & Proposal ImageGuard](1.9-week9/)
 
 **Tuần 10:** [Triển khai Workshop ImageGuard trên AWS](1.10-week10/)
 

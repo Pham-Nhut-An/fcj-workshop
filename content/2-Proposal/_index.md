@@ -9,7 +9,7 @@ pre: " <b> 2. </b> "
 # ImageGuard – AI-Powered Image Moderation and Labeling on AWS Serverless
 
 {{% notice info %}}
-**Status:** Proposal v2.0.
+**Status:** Deployed and tested on AWS (us-east-1).
 {{% /notice %}}
 
 ## 1. Overview
@@ -165,11 +165,13 @@ Internship period: 14/09/2026 – 14/12/2026. Workshop submission deadline: **30
 
 | Internship week | Dates | Tasks | Output |
 |---|---|---|---|
-| Week 7 | 26/10 – 01/11 | Finalize topic, write proposal v1.0; test Bedrock, discover the zero quota | Proposal v1.0, incident notes |
-| Week 8 | 02/11 – 08/11 | Request a quota increase (denied); switch to Rekognition, write proposal v2.0; create S3, DynamoDB, IAM roles; build the `process-image` Lambda + S3 event | Proposal v2.0, working image pipeline |
-| Week 9 | 09/11 – 15/11 | Cognito, API Gateway, the two API Lambdas; static site + CloudFront; CloudWatch metrics/alarms/dashboard, SNS, DLQ; testing; AWS Pricing Calculator; record the demo video | End-to-end demo, video, cost table |
-| Week 10 | 16/11 – 19/11 | Write the bilingual 5-Workshop section (step-by-step, testing, clean-up), take screenshots, finalize the diagram, peer review | **Submit workshop on 19/11** |
-| Week 10–12 | 20/11 – 14/12 | Apply mentor feedback, finish blogs and worklogs, clean up resources | Final report |
+| Week 7 | 26/10 – 01/11 | Pick the first topic (SmartDoc), write the first proposal, build the report site | SmartDoc proposal |
+| Week 8 | 02/11 – 08/11 | Test Amazon Nova Lite on Bedrock: zero quota, increase request denied | Incident noted, change of direction needed |
+| Week 9 | 09/11 – 15/11 | Test Amazon Rekognition, switch the topic to ImageGuard, rewrite the proposal, draw the architecture diagram | ImageGuard proposal, architecture diagram |
+| Week 10 | 16/11 – 22/11 | Deploy Steps 1–5 on AWS (S3, DynamoDB, SNS, SQS, IAM, 3 Lambdas, Cognito, API Gateway, CloudFront, CloudWatch), estimate costs, write the bilingual 5-Workshop section | End-to-end system, first workshop version |
+| Week 11 | 23/11 – 29/11 | Testing (security, batch, error cases), enable PITR, rebuild the web UI, prepare the team submission files (summary `.md`, architecture `.xml`), add explanations to section 5, record the demo video | Submission files, demo video |
+| Week 12 | 30/11 – 06/12 | **Submit the workshop (deadline 30/11/2026)**; apply mentor feedback if rejected; after grading, clean up AWS resources per section 5.7 | Approved workshop, no remaining cost |
+| After week 12 | 07/12 – 14/12 | Finish the internship report; the internship ends on 14/12/2026 | Final report |
 
 ## 6. Cost Estimation
 

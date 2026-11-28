@@ -34,7 +34,7 @@ Bài còn gợi ý thiết kế nhiều tầng: dùng S3 Vectors cho toàn bộ 
 
 **Lưu ý:** ba thử nghiệm dùng dữ liệu khác nhau nên không thể so sánh ngang hàng trực tiếp, chỉ cho thấy xu hướng đánh đổi của từng lựa chọn. Con số độ trễ cũng chưa tính thời gian tạo embedding.
 
-Mình thấy bài này hữu ích vì nó giúp chọn công nghệ dựa trên nhu cầu thực tế, thay vì chọn theo cảm tính.
+Điểm rút ra: bài viết giúp chọn công nghệ dựa trên nhu cầu thực tế, thay vì chọn theo cảm tính.
 
 **Nguồn:** *Selecting a vector store for Amazon Bedrock Knowledge Bases* – Deepak Dalakoti, Rhys Lewis, Petar Avramovic, AWS Machine Learning Blog (17/09/2026)
 <https://aws.amazon.com/blogs/machine-learning/selecting-a-vector-store-for-amazon-bedrock-knowledge-bases/>

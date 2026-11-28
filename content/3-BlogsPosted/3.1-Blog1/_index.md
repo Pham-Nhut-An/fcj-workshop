@@ -39,7 +39,7 @@ The key idea is that learned instructions are reused later. In the post's exampl
 - Cost is mostly model inference (about 85%)
 - **Amazon Bedrock Guardrails** is recommended for sensitive documents
 
-My takeaway: document processing is no longer just OCR followed by an LLM call. Agents can also learn from earlier corrections.
+Takeaway: document processing is no longer just OCR followed by an LLM call. Agents can also learn from earlier corrections.
 
 **Source:** *Build self-improving document processing using Amazon Bedrock AgentCore* – AWS Machine Learning Blog (14/10/2026)
 <https://aws.amazon.com/blogs/machine-learning/build-self-improving-document-processing-using-amazon-bedrock-agentcore/>

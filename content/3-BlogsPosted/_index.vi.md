@@ -6,7 +6,7 @@ chapter: false
 pre: " <b> 3. </b> "
 ---
 
-Phần này liệt kê 3 bài blog em đã đăng lên cộng đồng [AWS Study Group](https://www.facebook.com/groups/awsstudygroupfcj) ngày 06/11/2026.
+Phần này liệt kê 3 bài blog đã đăng lên cộng đồng [AWS Study Group](https://www.facebook.com/groups/awsstudygroupfcj) ngày 06/11/2026.
 
 ### [Blog 1 - Xử lý tài liệu tự cải thiện với Amazon Bedrock AgentCore](3.1-blog1/)
 Bài viết giới thiệu giải pháp mẫu dùng AI agent trên Amazon Bedrock AgentCore để xử lý tài liệu (hóa đơn, biểu mẫu) mà không cần viết sẵn template cho từng loại. Hệ thống kết hợp Amazon Textract, Strands Agents và S3 Vectors để ghi nhớ các lần sửa lỗi trước đó và tự cải thiện theo thời gian.

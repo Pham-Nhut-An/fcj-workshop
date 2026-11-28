@@ -9,7 +9,7 @@ pre: " <b> 2. </b> "
 # ImageGuard – Kiểm duyệt và gắn nhãn ảnh tự động bằng AI trên AWS Serverless
 
 {{% notice info %}}
-**Trạng thái:** Bản đề xuất v2.0.
+**Trạng thái:** Đã triển khai và kiểm thử trên AWS (us-east-1).
 {{% /notice %}}
 
 ## 1. Tổng quan
@@ -165,11 +165,13 @@ Thời gian thực tập: 14/09/2026 – 14/12/2026. Hạn nộp Workshop: **30/
 
 | Tuần thực tập | Thời gian | Công việc | Đầu ra |
 |---|---|---|---|
-| Week 7 | 26/10 – 01/11 | Chốt đề tài, viết Proposal v1.0; thử Bedrock, phát hiện quota bằng 0 | Proposal v1.0, ghi nhận sự cố |
-| Week 8 | 02/11 – 08/11 | Xin tăng quota (bị từ chối); đổi sang Rekognition, viết Proposal v2.0; tạo S3, DynamoDB, IAM Role; viết Lambda `process-image` + S3 Event | Proposal v2.0, pipeline xử lý ảnh chạy được |
-| Week 9 | 09/11 – 15/11 | Cognito, API Gateway, 2 Lambda API; web tĩnh + CloudFront; CloudWatch metrics/alarms/dashboard, SNS, DLQ; kiểm thử; AWS Pricing Calculator; quay video demo | Demo end-to-end, video, bảng chi phí |
-| Week 10 | 16/11 – 19/11 | Viết mục 5-Workshop song ngữ (step-by-step, testing, clean-up), chụp screenshot, hoàn thiện sơ đồ kiến trúc, rà soát chéo | **Nộp workshop 19/11** |
-| Week 10–12 | 20/11 – 14/12 | Sửa theo góp ý mentor, hoàn thiện blog và worklog, dọn tài nguyên | Báo cáo hoàn chỉnh |
+| Week 7 | 26/10 – 01/11 | Chốt hướng đề tài đầu tiên (SmartDoc), viết Proposal đầu tiên, dựng website báo cáo | Proposal SmartDoc |
+| Week 8 | 02/11 – 08/11 | Thử Amazon Nova Lite trên Bedrock: quota bằng 0, yêu cầu tăng quota bị từ chối | Ghi nhận sự cố, cần đổi hướng |
+| Week 9 | 09/11 – 15/11 | Thử Amazon Rekognition, đổi đề tài sang ImageGuard, viết lại Proposal, vẽ sơ đồ kiến trúc | Proposal ImageGuard, sơ đồ kiến trúc |
+| Week 10 | 16/11 – 22/11 | Triển khai Step 1–5 trên AWS (S3, DynamoDB, SNS, SQS, IAM, 3 Lambda, Cognito, API Gateway, CloudFront, CloudWatch), dự toán chi phí, viết mục 5-Workshop song ngữ | Hệ thống chạy end-to-end, Workshop bản đầu |
+| Week 11 | 23/11 – 29/11 | Kiểm thử (bảo mật, hàng loạt, kịch bản lỗi), bật PITR, làm lại giao diện web, soạn file nộp nhóm (summary `.md`, architecture `.xml`), bổ sung giải thích mục 5, quay video demo | Bộ file nộp, video demo |
+| Week 12 | 30/11 – 06/12 | **Nộp Workshop (hạn 30/11/2026)**; sửa theo góp ý của mentor nếu bị Reject; có kết quả thì dọn tài nguyên AWS theo mục 5.7 | Workshop được duyệt, không còn chi phí |
+| Sau Week 12 | 07/12 – 14/12 | Hoàn tất báo cáo thực tập, kết thúc kỳ thực tập (14/12/2026) | Báo cáo hoàn chỉnh |
 
 ## 6. Dự toán chi phí (Cost Estimation)
 

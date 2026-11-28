@@ -17,11 +17,11 @@ pre: " <b> 1.9. </b> "
 | 2 | - Follow up on the Bedrock quota increase request (not successful). <br> - Review an overview of the lessons learned so far. | 09/11/2026 | 09/11/2026 | <https://docs.aws.amazon.com/servicequotas/latest/userguide/> |
 | 3 | - Test Amazon Rekognition on the AWS Console as an alternative to Amazon Bedrock: <br> &emsp; + DetectModerationLabels: a toy wooden gun was flagged as Violence/Weapons (97.2%, a false positive) <br> &emsp; + A beer photo was labeled Alcohol/Alcoholic Beverages (99.3%). | 10/11/2026 | 10/11/2026 | <https://docs.aws.amazon.com/rekognition/> |
 | 4 | - Draw the ImageGuard architecture diagram with draw.io (official AWS icons). | 11/11/2026 | 11/11/2026 | <https://aws.amazon.com/architecture/icons/> |
-| 5 | - Update the Proposal to v2.0: ImageGuard – automatic image moderation and labeling with Amazon Rekognition. | 12/11/2026 | 12/11/2026 | <https://workshop-sample.awsfcaj.com/> |
-| 6 | - Refine the architecture diagram and the Proposal v2.0 on the report website. | 13/11/2026 | 13/11/2026 | <https://workshop-sample.awsfcaj.com/> |
+| 5 | - Rewrite the Proposal for the new topic ImageGuard – automatic image moderation and labeling with Amazon Rekognition. | 12/11/2026 | 12/11/2026 | <https://workshop-sample.awsfcaj.com/> |
+| 6 | - Refine the architecture diagram and the ImageGuard Proposal on the report website. | 13/11/2026 | 13/11/2026 | <https://workshop-sample.awsfcaj.com/> |
 
 ### Week 9 Achievements:
 
 * Tested Amazon Rekognition on the AWS Console (moderation and label detection) as an alternative to Amazon Bedrock.
-* Updated the Proposal to v2.0 (ImageGuard) and drew the architecture diagram with draw.io.
+* Rewrote the Proposal for the ImageGuard topic and drew the architecture diagram with draw.io.
 * Container services (Docker, Amazon ECR, Amazon ECS, Amazon EKS) are postponed.

@@ -6,7 +6,7 @@ chapter: false
 pre: " <b> 3. </b> "
 ---
 
-This section lists the 3 blogs I posted to the [AWS Study Group](https://www.facebook.com/groups/awsstudygroupfcj) community on 06/11/2026.
+This section lists the 3 blogs posted to the [AWS Study Group](https://www.facebook.com/groups/awsstudygroupfcj) community on 06/11/2026.
 
 ### [Blog 1 - Self-improving document processing with Amazon Bedrock AgentCore](3.1-blog1/)
 This blog introduces a sample solution that uses AI agents on Amazon Bedrock AgentCore to process documents (invoices, forms) without writing a template for each type. It combines Amazon Textract, Strands Agents and S3 Vectors to remember past corrections and improve over time.

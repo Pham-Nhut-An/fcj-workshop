@@ -34,7 +34,7 @@ It also suggests a tiered design: S3 Vectors for the full corpus, and OpenSearch
 
 **Notes:** the three tests used different datasets, so they cannot be compared head to head. They only show the shape of each trade-off. The latency numbers also exclude embedding generation time.
 
-My takeaway: this article helps choose technology based on real needs instead of gut feeling.
+Takeaway: the article helps choose technology based on real needs instead of gut feeling.
 
 **Source:** *Selecting a vector store for Amazon Bedrock Knowledge Bases* – Deepak Dalakoti, Rhys Lewis, Petar Avramovic, AWS Machine Learning Blog (17/09/2026)
 <https://aws.amazon.com/blogs/machine-learning/selecting-a-vector-store-for-amazon-bedrock-knowledge-bases/>

@@ -24,7 +24,7 @@ This worklog records what I learned and did during the 12 main working weeks (14
 
 **Week 8:** [IaC, Amazon Bedrock testing & 3 blog posts](1.8-week8/)
 
-**Week 9:** [Amazon Rekognition testing & Proposal v2.0](1.9-week9/)
+**Week 9:** [Amazon Rekognition testing & ImageGuard Proposal](1.9-week9/)
 
 **Week 10:** [Deploying the ImageGuard workshop on AWS](1.10-week10/)
 
