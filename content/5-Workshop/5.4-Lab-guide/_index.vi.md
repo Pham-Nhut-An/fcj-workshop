@@ -260,7 +260,7 @@ User pool `imageguard-users`, đăng nhập bằng **email**, cho tự đăng k�
 ![Hình 3.5 – Cửa sổ chi tiết ảnh](../../../images/5-workshop/26-7-web-detail-dark.jpg)
 *Hình 3.5 – Cửa sổ chi tiết ảnh: nhãn, thời gian tải lên / xử lý xong, Image ID*
 
-> **Các tính năng trên giao diện** (lọc theo trạng thái, tìm theo nhãn, sắp xếp, nhãn phổ biến, thống kê, xem chi tiết, tải nhiều ảnh, kiểm tra 3 byte đầu của file JPEG) đều chạy trên trình duyệt với dữ liệu trả về từ `GET /images`, không cần thêm API hay dịch vụ nào, nên kiến trúc giữ nguyên.
+> **Các tính năng trên giao diện** (lọc theo trạng thái, tìm theo nhãn, sắp xếp, nhãn phổ biến, thống kê, xem chi tiết, tải nhiều ảnh, kiểm tra 3 byte đầu của file JPEG, chọn ngôn ngữ VI/EN) đều chạy trên trình duyệt với dữ liệu trả về từ `GET /images`, không cần thêm API hay dịch vụ nào, nên kiến trúc giữ nguyên. Ngôn ngữ đã chọn được lưu trên trình duyệt; có thể mở thẳng bằng `?lang=en`.
 
 
 ## Step 4 – Giám sát

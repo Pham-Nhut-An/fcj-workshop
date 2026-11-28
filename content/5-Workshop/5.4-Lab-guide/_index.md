@@ -260,7 +260,7 @@ User pool `imageguard-users`, **email** sign-in, self sign-up enabled. App clien
 ![Figure 3.5 – Image detail dialog](../../images/5-workshop/26-7-web-detail-dark.jpg)
 *Figure 3.5 – Image detail dialog: labels, upload / processed time, Image ID*
 
-> **UI features** (status filter, label search, sorting, popular labels, statistics, detail view, multi-image upload, JPEG magic-byte check) all run in the browser on the data returned by `GET /images`; no new API or service is needed, so the architecture is unchanged.
+> **UI features** (status filter, label search, sorting, popular labels, statistics, detail view, multi-image upload, JPEG magic-byte check, VI/EN language switch) all run in the browser on the data returned by `GET /images`; no new API or service is needed, so the architecture is unchanged. The chosen language is remembered in the browser; `?lang=en` opens the English version directly.
 
 
 ## Step 4 – Monitoring

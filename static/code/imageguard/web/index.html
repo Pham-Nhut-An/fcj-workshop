@@ -118,6 +118,10 @@
     .thumb.blocked{background:repeating-linear-gradient(45deg,rgba(255,93,93,.08) 0 10px,rgba(255,93,93,.03) 10px 20px);color:var(--bad);font-weight:600}
     .thumb.waiting{background:linear-gradient(90deg,var(--bg2) 0%,#161a21 50%,var(--bg2) 100%);background-size:200% 100%;animation:shimmer 1.4s linear infinite;color:var(--wait)}
     @keyframes shimmer{to{background-position:-200% 0}}
+    .lang{display:inline-flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden;flex:none}
+    .lang button{font:600 12px/1 inherit;font-family:inherit;padding:8px 10px;background:transparent;border:0;color:var(--muted);cursor:pointer}
+    .lang button.on{background:var(--panel2);color:var(--ink)}
+    .lang button:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
     @media (prefers-reduced-motion:reduce){.thumb.waiting,.live::before{animation:none}}
     .meta{padding:12px 14px 14px;display:flex;flex-direction:column;gap:9px}
     .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -160,11 +164,12 @@
         <span class="logo-mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7aa3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span>
         ImageGuard
       </div>
-      <nav id="nav" class="hidden"><a href="#upload">Tải lên</a><a href="#library">Thư viện</a></nav>
+      <nav id="nav" class="hidden"><a href="#upload" data-i18n="nav.upload">Tải lên</a><a href="#library" data-i18n="nav.library">Thư viện</a></nav>
       <div class="account">
+        <div class="lang" id="lang" role="group" aria-label="Ngôn ngữ / Language"><button type="button" data-lang="vi">VI</button><button type="button" data-lang="en">EN</button></div>
         <span id="user"></span>
-        <button id="loginBtn" class="btn primary">Đăng nhập</button>
-        <button id="logoutBtn" class="btn ghost hidden">Đăng xuất</button>
+        <button id="loginBtn" class="btn primary" data-i18n="login">Đăng nhập</button>
+        <button id="logoutBtn" class="btn ghost hidden" data-i18n="logout">Đăng xuất</button>
       </div>
     </div>
   </header>
@@ -174,31 +179,31 @@
     <section id="guest">
       <div class="hero">
         <span class="eyebrow">Amazon Rekognition · Serverless</span>
-        <h1>Kiểm duyệt ảnh<br><span>tự động bằng AI</span></h1>
-        <p>Tải ảnh lên, hệ thống kiểm tra nội dung trong vài giây. Ảnh vi phạm bị chặn và quản trị viên nhận email cảnh báo; ảnh hợp lệ được gắn nhãn mô tả.</p>
+        <h1 data-i18n-html="hero.h1">Kiểm duyệt ảnh<br><span>tự động bằng AI</span></h1>
+        <p data-i18n="hero.p">Tải ảnh lên, hệ thống kiểm tra nội dung trong vài giây. Ảnh vi phạm bị chặn và quản trị viên nhận email cảnh báo; ảnh hợp lệ được gắn nhãn mô tả.</p>
         <div class="cta">
-          <button class="btn primary" id="heroLogin">Đăng nhập để bắt đầu
+          <button class="btn primary" id="heroLogin"><span data-i18n="hero.cta">Đăng nhập để bắt đầu</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         </div>
-        <div class="flow" aria-label="Luồng xử lý">
-          <b>Trình duyệt</b>→<b>S3</b>→<b>Lambda</b>→<b>Rekognition</b>→<b>DynamoDB</b>→<b>SNS</b>
+        <div class="flow" data-i18n-aria="flow.aria" aria-label="Luồng xử lý">
+          <b data-i18n="flow.browser">Trình duyệt</b>→<b>S3</b>→<b>Lambda</b>→<b>Rekognition</b>→<b>DynamoDB</b>→<b>SNS</b>
         </div>
       </div>
       <div class="steps">
         <div class="panel cut step"><div class="in cut">
           <span class="tag">01 · UPLOAD</span>
           <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7aa3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg></div>
-          <h3>Tải ảnh lên</h3><p>Ảnh đi thẳng lên Amazon S3 qua URL ký sẵn, hết hạn sau 5 phút. Không đi qua máy chủ trung gian.</p>
+          <h3 data-i18n="s1.h">Tải ảnh lên</h3><p data-i18n="s1.p">Ảnh đi thẳng lên Amazon S3 qua URL ký sẵn, hết hạn sau 5 phút. Không đi qua máy chủ trung gian.</p>
         </div></div>
         <div class="panel cut step"><div class="in cut">
           <span class="tag">02 · MODERATE</span>
           <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7aa3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/></svg></div>
-          <h3>AI kiểm duyệt</h3><p>Phát hiện bạo lực, khiêu dâm, ma túy và thuốc lá, biểu tượng thù ghét. Ảnh vi phạm bị chặn ngay.</p>
+          <h3 data-i18n="s2.h">AI kiểm duyệt</h3><p data-i18n="s2.p">Phát hiện bạo lực, khiêu dâm, ma túy và thuốc lá, biểu tượng thù ghét. Ảnh vi phạm bị chặn ngay.</p>
         </div></div>
         <div class="panel cut step"><div class="in cut">
           <span class="tag">03 · LABEL</span>
           <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7aa3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12l-8 8-9-9V3h8l9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></div>
-          <h3>Gắn nhãn</h3><p>Ảnh hợp lệ được gắn tối đa 10 nhãn mô tả nội dung, giúp tìm lại ảnh nhanh.</p>
+          <h3 data-i18n="s3.h">Gắn nhãn</h3><p data-i18n="s3.p">Ảnh hợp lệ được gắn tối đa 10 nhãn mô tả nội dung, giúp tìm lại ảnh nhanh.</p>
         </div></div>
       </div>
     </section>
@@ -207,26 +212,26 @@
     <div id="app" class="hidden">
       <section>
         <div class="stats">
-          <div class="panel cut stat"><div class="in cut"><div class="k">Tổng ảnh</div><div class="v" id="sTotal">0</div></div></div>
-          <div class="panel cut stat ok"><div class="in cut"><div class="k">Đã duyệt</div><div class="v" id="sOk">0</div></div></div>
-          <div class="panel cut stat bad"><div class="in cut"><div class="k">Bị chặn</div><div class="v" id="sBad">0</div></div></div>
-          <div class="panel cut stat wait"><div class="in cut"><div class="k">Đang xử lý</div><div class="v" id="sWait">0</div></div></div>
-          <div class="panel cut stat blue"><div class="in cut"><div class="k" title="Trung bình từ lúc xin URL tải lên đến khi kiểm duyệt xong (gồm cả thời gian upload)">TB hoàn tất</div><div class="v" id="sAvg">–</div></div></div>
+          <div class="panel cut stat"><div class="in cut"><div class="k" data-i18n="st.total">Tổng ảnh</div><div class="v" id="sTotal">0</div></div></div>
+          <div class="panel cut stat ok"><div class="in cut"><div class="k" data-i18n="st.ok">Đã duyệt</div><div class="v" id="sOk">0</div></div></div>
+          <div class="panel cut stat bad"><div class="in cut"><div class="k" data-i18n="st.bad">Bị chặn</div><div class="v" id="sBad">0</div></div></div>
+          <div class="panel cut stat wait"><div class="in cut"><div class="k" data-i18n="st.wait">Đang xử lý</div><div class="v" id="sWait">0</div></div></div>
+          <div class="panel cut stat blue"><div class="in cut"><div class="k" data-i18n="st.avg" data-i18n-title="st.avgTip" title="Trung bình từ lúc xin URL tải lên đến khi kiểm duyệt xong (gồm cả thời gian upload)">TB hoàn tất</div><div class="v" id="sAvg">–</div></div></div>
         </div>
       </section>
 
       <section id="upload">
         <div class="panel cut box"><div class="in cut">
-          <div class="card-h"><h2>Tải ảnh lên</h2><span class="eyebrow">JPEG · tối đa 5 MB · nhiều ảnh</span></div>
+          <div class="card-h"><h2 data-i18n="up.h">Tải ảnh lên</h2><span class="eyebrow" data-i18n="up.hint">JPEG · tối đa 5 MB · nhiều ảnh</span></div>
           <label class="drop" id="drop">
             <input type="file" id="fileInput" accept="image/jpeg" multiple>
             <span class="ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7aa3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg></span>
-            <span><strong>Chọn hoặc kéo thả ảnh vào đây</strong><span class="muted">Có thể chọn nhiều ảnh cùng lúc; ảnh được kiểm tra định dạng ngay trên trình duyệt.</span></span>
+            <span><strong data-i18n="up.drop">Chọn hoặc kéo thả ảnh vào đây</strong><span class="muted" data-i18n="up.dropHint">Có thể chọn nhiều ảnh cùng lúc; ảnh được kiểm tra định dạng ngay trên trình duyệt.</span></span>
           </label>
           <ul class="queue" id="queue"></ul>
           <div class="upload-actions">
-            <button id="uploadBtn" class="btn primary" disabled>Tải lên</button>
-            <button id="clearBtn" class="btn ghost hidden">Xóa danh sách</button>
+            <button id="uploadBtn" class="btn primary" disabled data-i18n="up.btn">Tải lên</button>
+            <button id="clearBtn" class="btn ghost hidden" data-i18n="up.clear">Xóa danh sách</button>
             <span id="message" class="muted" role="status"></span>
           </div>
         </div></div>
@@ -234,18 +239,18 @@
 
       <section id="library">
         <div class="panel cut box"><div class="in cut">
-          <div class="card-h"><h2>Thư viện ảnh</h2>
-            <div style="display:flex;gap:10px;align-items:center"><span id="live" class="live hidden">Đang cập nhật</span><button id="refreshBtn" class="btn">Làm mới</button></div></div>
+          <div class="card-h"><h2 data-i18n="lib.h">Thư viện ảnh</h2>
+            <div style="display:flex;gap:10px;align-items:center"><span id="live" class="live hidden" data-i18n="lib.live">Đang cập nhật</span><button id="refreshBtn" class="btn" data-i18n="lib.refresh">Làm mới</button></div></div>
           <div class="toolbar">
             <div class="tabs" id="tabs" role="tablist">
-              <button data-f="ALL" class="on">Tất cả<span class="n" id="nALL">0</span></button>
-              <button data-f="APPROVED">Đã duyệt<span class="n" id="nAPPROVED">0</span></button>
-              <button data-f="REJECTED">Bị chặn<span class="n" id="nREJECTED">0</span></button>
-              <button data-f="PENDING">Đang xử lý<span class="n" id="nPENDING">0</span></button>
+              <button data-f="ALL" class="on"><span data-i18n="tab.all">Tất cả</span><span class="n" id="nALL">0</span></button>
+              <button data-f="APPROVED"><span data-i18n="st.ok">Đã duyệt</span><span class="n" id="nAPPROVED">0</span></button>
+              <button data-f="REJECTED"><span data-i18n="st.bad">Bị chặn</span><span class="n" id="nREJECTED">0</span></button>
+              <button data-f="PENDING"><span data-i18n="st.wait">Đang xử lý</span><span class="n" id="nPENDING">0</span></button>
             </div>
             <label class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b919c" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-              <input id="q" type="search" placeholder="Tìm theo nhãn hoặc danh mục (vd: Cat, Violence)" aria-label="Tìm theo nhãn"></label>
-            <select id="sort" aria-label="Sắp xếp"><option value="new">Mới nhất</option><option value="old">Cũ nhất</option></select>
+              <input id="q" type="search" data-i18n-ph="lib.q" data-i18n-aria="lib.qAria" placeholder="Tìm theo nhãn hoặc danh mục (vd: Cat, Violence)" aria-label="Tìm theo nhãn"></label>
+            <select id="sort" data-i18n-aria="lib.sort" aria-label="Sắp xếp"><option value="new" data-i18n="lib.new">Mới nhất</option><option value="old" data-i18n="lib.old">Cũ nhất</option></select>
           </div>
           <div class="chips" id="chips"></div>
           <div id="gallery" class="grid"></div>
@@ -254,21 +259,21 @@
     </div>
   </main>
 
-  <dialog id="modal" class="panel cut modal" aria-label="Chi tiết ảnh"><div class="in cut">
-    <button class="btn ghost x" id="closeModal" aria-label="Đóng">✕</button>
+  <dialog id="modal" class="panel cut modal" data-i18n-aria="m.aria" aria-label="Chi tiết ảnh"><div class="in cut">
+    <button class="btn ghost x" id="closeModal" data-i18n-aria="m.close" aria-label="Đóng">✕</button>
     <div class="pic" id="mPic"></div>
     <div class="info">
       <span id="mBadge"></span>
       <dl>
-        <dt>Tải lên</dt><dd id="mCreated"></dd>
-        <dt>Xử lý xong</dt><dd id="mProcessed"></dd>
-        <dt>Tổng thời gian</dt><dd id="mDuration"></dd>
+        <dt data-i18n="m.created">Tải lên</dt><dd id="mCreated"></dd>
+        <dt data-i18n="m.processed">Xử lý xong</dt><dd id="mProcessed"></dd>
+        <dt data-i18n="m.duration">Tổng thời gian</dt><dd id="mDuration"></dd>
         <dt>Image ID</dt><dd class="mono" id="mId"></dd>
       </dl>
       <div><div class="eyebrow" id="mTagsTitle" style="margin-bottom:8px">Nhãn</div><div class="tags" id="mTags"></div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" id="copyId">Sao chép ID</button>
-        <button class="btn" id="copyLabels">Sao chép nhãn</button>
+        <button class="btn" id="copyId" data-i18n="m.copyId">Sao chép ID</button>
+        <button class="btn" id="copyLabels" data-i18n="m.copyLabels">Sao chép nhãn</button>
       </div>
     </div>
   </div></dialog>
