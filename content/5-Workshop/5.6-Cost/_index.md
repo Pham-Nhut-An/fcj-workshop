@@ -25,6 +25,16 @@ Assumptions: us-east-1, **3,000 images/month**, 1 MB per image, ~3% violating, 3
 
 **Actual cost of running the workshop:** fewer than 300 images → about USD 0.30–0.60 for Rekognition; everything else is within the free tier.
 
+## Cost at higher volumes (linear estimate)
+
+| Images/month | Rekognition | Other services | Estimated total |
+|---|---|---|---|
+| 3,000 | 5.91 | 2.46 | **≈ USD 8.4** |
+| 30,000 | 59.10 | ≈ 4 | **≈ USD 63** |
+| 300,000 | 591.00 | ≈ 25 | **≈ USD 616** |
+
+Rekognition is 70% of the cost at 3,000 images and over 90% at high volumes; CloudWatch is mostly fixed (alarms, dashboard). The most important optimization is therefore **fewer Rekognition calls**: moderation before labeling (done), and optionally turning off `DetectLabels` where labels are not needed. Rekognition pricing drops in tiers beyond 1 million images/month.
+
 ## Cost optimization
 
 - 100% serverless: no EC2, NAT Gateway or always-on resources.

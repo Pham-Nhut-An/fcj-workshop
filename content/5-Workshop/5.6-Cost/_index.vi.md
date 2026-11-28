@@ -25,6 +25,16 @@ Giả định: us-east-1, **3.000 ảnh/tháng**, ảnh 1 MB, ~3% vi phạm, 30.
 
 **Chi phí thực tế khi làm workshop:** dưới 300 ảnh → Rekognition khoảng 0,30–0,60 USD; phần còn lại nằm trong Free Tier.
 
+## Chi phí khi tăng tải (ước tính tuyến tính)
+
+| Ảnh/tháng | Rekognition | Các dịch vụ khác | Tổng ước tính |
+|---|---|---|---|
+| 3.000 | 5,91 | 2,46 | **≈ 8,4 USD** |
+| 30.000 | 59,10 | ≈ 4 | **≈ 63 USD** |
+| 300.000 | 591,00 | ≈ 25 | **≈ 616 USD** |
+
+Rekognition chiếm 70% chi phí ở 3.000 ảnh và hơn 90% khi tải lớn; CloudWatch gần như cố định (alarm, dashboard). Vì vậy tối ưu quan trọng nhất là **giảm số lượt gọi Rekognition**: kiểm duyệt trước rồi mới gắn nhãn (đã làm), và khi cần có thể tắt `DetectLabels` cho những nơi không cần nhãn. Rekognition giảm giá theo bậc khi vượt 1 triệu ảnh/tháng.
+
 ## Tối ưu chi phí
 
 - 100% serverless: không có EC2, NAT Gateway hay tài nguyên chạy 24/7.

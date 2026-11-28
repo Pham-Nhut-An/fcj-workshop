@@ -227,12 +227,16 @@ Tạo 2 role riêng (least privilege) rồi 2 function Python 3.12 arm64, 128 MB
 2. **CloudFront → Create distribution**: origin S3 bucket web với **OAC**, Redirect HTTP to HTTPS, CachingOptimized, Response headers **SecurityHeadersPolicy**, Default root object `index.html`, WAF không bật.
 3. Bucket policy chỉ cho `cloudfront.amazonaws.com` với `AWS:SourceArn` = ARN distribution.
 
+> **Vì sao dùng OAC?** Bucket web vẫn giữ Block all public access; chỉ đúng distribution này đọc được file. Người dùng không mở thẳng được link S3 (đã kiểm thử ở 5.5: 403). **SecurityHeadersPolicy** thêm HSTS, X-Frame-Options, X-Content-Type-Options để chống clickjacking và đoán sai kiểu file. WAF chưa bật vì chưa có lưu lượng thật; đây là hướng mở rộng.
+
 ![Hình 3.2 – Trang ImageGuard qua CloudFront](../../../images/5-workshop/21-6-web-home-dark.jpg)
 *Hình 3.2 – Trang ImageGuard qua CloudFront*
 
 
 ### 3.3. Cognito
 User pool `imageguard-users`, đăng nhập bằng **email**, cho tự đăng ký. App client **SPA, không có client secret**: Authorization code grant, scope `openid email`, callback và sign-out URL = `https://<CLOUDFRONT_DOMAIN>/`. Tạo domain (Managed login).
+
+> **Vì sao App client không có client secret và dùng PKCE?** Web chạy hoàn toàn trên trình duyệt nên không giữ được bí mật; ai cũng xem được mã JavaScript. PKCE thay thế client secret: trình duyệt tạo một chuỗi ngẫu nhiên (`code_verifier`), gửi bản băm SHA-256 lúc đăng nhập và gửi chuỗi gốc lúc đổi `code` lấy token, nên kẻ gian bắt được `code` cũng không đổi được token. Tham số `state` chống CSRF. Token lưu trong `sessionStorage`, mất khi đóng tab.
 
 ![Hình 3.3 – Trang đăng nhập Cognito Managed Login](../../../images/5-workshop/26-0-cognito-managed-login.jpg)
 *Hình 3.3 – Trang đăng nhập Cognito Managed Login*
@@ -243,6 +247,8 @@ User pool `imageguard-users`, đăng nhập bằng **email**, cho tự đăng k�
 - **JWT Authorizer** `cognito-jwt`: issuer `https://cognito-idp.us-east-1.amazonaws.com/<USER_POOL_ID>`, audience `<APP_CLIENT_ID>`, gắn cho cả 2 route.
 - **CORS**: chỉ origin `https://<CLOUDFRONT_DOMAIN>`, header `authorization, content-type`, method `GET, POST, OPTIONS`.
 - **Throttling** default route: rate 10, burst 20.
+
+> **Vì sao cấu hình như vậy?** JWT Authorizer kiểm tra chữ ký token bằng khóa công khai của User Pool, cùng issuer và audience, nên request giả hoặc hết hạn bị chặn ngay tại API Gateway (trả 401), không chạm tới Lambda, không tốn tiền (kiểm thử E3, E4 ở 5.5). CORS chỉ cho domain CloudFront, nên trang web khác không gọi được API từ trình duyệt. Throttling giới hạn số request mỗi giây để bảo vệ Lambda và chi phí.
 
 ### 3.5. Nối các phần
 - CORS cho bucket ảnh: cho phép `PUT, GET` từ domain CloudFront.
@@ -270,6 +276,10 @@ Chạy [`step4.sh`](https://github.com/Pham-Nhut-An/fcj-workshop/tree/main/stati
 | `imageguard-api-5xx` | AWS/ApiGateway 5xx | ≥ 5 |
 
 Mọi alarm gửi thông báo cả khi chuyển **ALARM** và **OK** tới SNS `imageguard-alerts`. Dashboard `imageguard` gồm số ảnh APPROVED/REJECTED, thời gian xử lý, Lambda, API Gateway, DLQ và trạng thái alarm. Log retention **14 ngày** cho cả 3 Lambda.
+
+> **Vì sao chọn các alarm này?** Mỗi alarm ứng với một kiểu hỏng: Lambda lỗi (`errors`), bị giới hạn quota (`throttles`), sự kiện không xử lý được (`dlq-not-empty`), email cảnh báo không gửi được (`alert-publish-failed`, đo bằng custom metric vì SNS lỗi không làm Lambda lỗi), API lỗi phía server (`api-5xx`). Ngưỡng ≥ 1 vì ở quy mô nhỏ, chỉ một lỗi cũng cần xem ngay; riêng 5xx để ≥ 5 để tránh báo động vì một request lẻ. Gửi cả khi trở lại **OK** để quản trị viên biết sự cố đã tự hết.
+>
+> **5 custom metric (EMF):** `ImagesProcessed`, `ImagesApproved`, `ImagesRejected`, `ProcessingLatency` (ms), `AlertPublishFailed`. Lambda chỉ cần in một dòng JSON đúng định dạng vào log, CloudWatch tự tạo metric, nên không cần quyền `cloudwatch:PutMetricData` và không tốn thêm API call.
 
 ![Hình 4.1 – Tạo 7 alarm và dashboard bằng step4.sh](../../../images/5-workshop/28-1-step4-alarms-created.jpg)
 *Hình 4.1 – Tạo 7 alarm và dashboard bằng step4.sh*

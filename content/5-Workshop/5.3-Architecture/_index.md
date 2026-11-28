@@ -8,21 +8,62 @@ pre: " <b> 5.3. </b> "
 
 ![ImageGuard architecture diagram](../../images/2-proposal/imageguard-architecture.drawio.png)
 
-## Request flow
+The diagram has 5 groups: **Frontend**, **Authentication & API**, **Compute**, **Storage & AI**, **Notification & Monitoring**. CloudFront sits outside the Region box because it is a global service. Arrow colors show the flow type: **blue** for upload, **green** for viewing, **orange** for AI processing, **dashed grey** for monitoring, **dashed red** for IAM permissions. Arrows point in the **request** direction.
 
-| # | Step |
-|---|---|
-| 1 | The user opens the site through **CloudFront**; CloudFront reads the private web bucket via **OAC** |
-| 2 | Sign-in with **Cognito Managed Login** (Authorization Code + PKCE) → JWT |
-| 3 | `POST /upload-url` via **API Gateway** (JWT Authorizer) → the `presign-upload` Lambda creates a `PENDING` item in DynamoDB and returns a presigned URL (5 minutes) |
-| 4 | The browser `PUT`s the image directly to S3: `uploads/{sub}/{uuid}.jpg` |
-| 5 | **S3 Event** `ObjectCreated:Put` (prefix `uploads/`, suffix `.jpg`) invokes `process-image` asynchronously |
-| 6 | `DetectModerationLabels` (60% threshold). If no blocked category → `DetectLabels` (10 labels, ≥ 80%) |
-| 7 | Conditional `UpdateItem` on `status = PENDING` → `APPROVED` / `REJECTED` |
-| 8 | If `REJECTED` and the DB update succeeded → **SNS** emails the administrator |
-| 9 | Failures after 2 retries → **SQS DLQ** (14-day retention) |
-| 10 | `GET /images` → the `get-images` Lambda runs `Query` on `userId = sub`; only `APPROVED` images get a presigned GET URL |
-| 11–12 | Logs + EMF metrics → **CloudWatch**; Alarms → SNS |
+## Request flow (matches the numbers on the diagram)
+
+| # | From → To | Description |
+|---|---|---|
+| 1 | User → CloudFront → S3 `imageguard-web` | The browser loads the static site (HTML/JS) over HTTPS. CloudFront reads the private web bucket via **OAC** |
+| 2 | User → Cognito | Sign-in with **Cognito Managed Login** (Authorization Code + PKCE), returning JWTs (ID token + access token) |
+| 3 | User → API Gateway | Calls `POST /upload-url` with the access token; the **JWT Authorizer** checks signature, issuer and audience |
+| 3a | API Gateway → `presign-upload` | The Lambda takes `userId` from the `sub` claim and generates `imageId` (UUID) |
+| 3b | `presign-upload` → DynamoDB | Writes a `PENDING` item, then returns a presigned PUT URL (5 minutes) for the key `uploads/{sub}/{imageId}.jpg` |
+| 4 | User → S3 `imageguard-images` | The browser `PUT`s the image straight to S3 with the presigned URL; the image never passes through API Gateway or Lambda |
+| 5 | S3 → `process-image` | **S3 Event** `ObjectCreated:Put` (prefix `uploads/`, suffix `.jpg`) invokes the Lambda **asynchronously** |
+| 6 | `process-image` → Rekognition | Calls `DetectModerationLabels` (60% threshold). If nothing is blocked, calls `DetectLabels` (up to 10 labels, ≥ 80%) |
+| 6a | Rekognition → S3 | Rekognition reads the image from S3 itself (`S3Object`); the Lambda never downloads it |
+| 7 | `process-image` → DynamoDB | **Conditional** `UpdateItem` on `status = PENDING` → `APPROVED` or `REJECTED` |
+| 8 | `process-image` → SNS → Admin | Sends the alert email only when the image is `REJECTED` **and** the DynamoDB update succeeded |
+| 9 | `process-image` → SQS DLQ | After 2 failed retries the event goes to the dead-letter queue, kept for 14 days |
+| 10 | User → API Gateway | Calls `GET /images` with the access token (shares the arrow with step 3) |
+| 10a | API Gateway → `get-images` | The Lambda takes `userId` from the `sub` claim |
+| 10b | `get-images` → DynamoDB | `Query` by `userId`, newest first, at most 50 items; only `APPROVED` images get a presigned GET URL (5 minutes) |
+| 10c | User → S3 `imageguard-images` | The browser downloads approved images with the presigned GET URL |
+| 11 | Lambda → CloudWatch | Structured JSON logs and 5 custom metrics via Embedded Metric Format (EMF) |
+| 12 | CloudWatch → SNS | 7 alarms email on ALARM and on return to OK |
+| – | IAM → Lambda | Each Lambda has its own least-privilege IAM role |
+
+## Why each service
+
+| Service | Role | Why | Alternatives considered |
+|---|---|---|---|
+| **Amazon S3** | Stores images and the static site | 99.999999999% durability, cheap, S3 Events trigger processing, Lifecycle deletes old images | EBS/EFS: must be attached to a server, more expensive |
+| **AWS Lambda** | Runs the 3 functions | No servers to manage, scales with the number of images, pay per invocation; almost USD 0 when idle | EC2/ECS: runs 24/7 even with no images |
+| **Amazon Rekognition** | Moderation and labeling | Ready-made content moderation models, no training data, pay per image | Amazon Bedrock: quota 0 on new accounts (see 5.5); training our own model: needs data and GPUs |
+| **Amazon DynamoDB** | Stores status and labels | Serverless, on-demand pricing per request, fast queries by `userId`, conditional writes | RDS: instance runs 24/7, needs a VPC |
+| **Amazon API Gateway (HTTP API)** | API for the web app | Built-in JWT Authorizer for Cognito, CORS, throttling; about 70% cheaper than REST API | REST API: more features than needed; Lambda Function URL: no JWT Authorizer |
+| **Amazon Cognito** | Sign-up and sign-in | Managed Login UI, OAuth 2.0 + PKCE, no passwords stored by us | Custom login: high security risk |
+| **Amazon CloudFront** | Serves the site | HTTPS by default, edge caching near users, OAC keeps the web bucket private | S3 static website hosting: HTTP only, bucket must be public |
+| **Amazon SNS** | Alert email | Emails the administrator with a few lines of code and also receives CloudWatch alarms | Amazon SES: suited to per-user emails, requires verifying the sender identity |
+| **Amazon SQS** | Dead-letter queue | Keeps failed events 14 days for inspection and reprocessing, so no image is lost | No DLQ: an async Lambda event is dropped after the retries run out |
+| **Amazon CloudWatch** | Logs, metrics, alarms, dashboard | Lambda logs here by default; EMF turns logs into metrics without API calls | External tools: extra setup and permissions |
+| **AWS IAM** | Permissions | One role per Lambda, scoped to exactly the resources it needs | One shared role: a compromised function would get the rights of all three |
+
+## Data model (DynamoDB `imageguard-images`)
+
+| Attribute | Type | Meaning |
+|---|---|---|
+| `userId` | String – **Partition key** | Cognito `sub` claim. One partition per user, so `Query` only returns that user's images |
+| `imageId` | String – **Sort key** | UUID generated by `presign-upload`, also the S3 file name |
+| `status` | String | `PENDING` → `APPROVED` or `REJECTED` |
+| `createdAt`, `processedAt` | String (ISO 8601) | When the upload URL was requested and when moderation finished |
+| `moderationLabels` | List | Moderation labels from Rekognition (name, parent category, confidence) |
+| `labels` | List | Content labels (name, confidence), only for valid images |
+| `blockedCategories` | List | Top-level categories that caused the block, e.g. `Violence` |
+| `reason` | String | `BLOCKED_CATEGORY`, `TOO_LARGE` (> 5 MB) or `INVALID_IMAGE:<error>` (not an image) |
+
+No Global Secondary Index is needed: every query in the system is by `userId`, which is exactly the partition key.
 
 ## Moderation policy
 
@@ -52,6 +93,36 @@ pre: " <b> 5.3. </b> "
 | `get-images` | `dynamodb:Query`, `s3:GetObject` (uploads/*), logs | PutObject, PutItem |
 
 Rekognition uses `Resource: "*"` because `DetectModerationLabels` / `DetectLabels` do not support resource-level permissions; only those 2 actions are granted.
+
+## AWS Well-Architected Framework mapping
+
+| Pillar | Measures in ImageGuard |
+|---|---|
+| **Operational Excellence** | Structured JSON logs; 5 EMF custom metrics (`ImagesProcessed`, `ImagesApproved`, `ImagesRejected`, `ProcessingLatency`, `AlertPublishFailed`); 7 alarms and the `imageguard` dashboard; `setup.sh` and `step4.sh` scripts for identical redeployment; moderation thresholds and blocked categories in environment variables, changeable without code changes |
+| **Security** | See "Security design": least privilege per Lambda, private buckets, JWT Authorizer, 5-minute presigned URLs, OAC, confused-deputy protection, no access keys or passwords in code |
+| **Reliability** | S3, Lambda, DynamoDB, SNS and SQS run across multiple Availability Zones; async Lambda retries 2 times then goes to the DLQ; boto3 retries 5 times on throttling; conditional writes make duplicate events harmless; bad files are marked `REJECTED` instead of breaking the pipeline; 35-day PITR |
+| **Performance Efficiency** | Direct upload to S3, so the API and Lambda never receive the image; Rekognition reads from S3, so the Lambda uses no memory for the image; arm64 Lambdas, `process-image` 256 MB, the two API functions 128 MB; Lambda and on-demand DynamoDB scale with load; the site is cached at CloudFront edges |
+| **Cost Optimization** | 100% serverless with nothing running 24/7; moderation before labeling; HTTP API instead of REST API; arm64; 30-day S3 Lifecycle; 14-day log retention; USD 8.37/month in Pricing Calculator (section 5.6) |
+| Sustainability | Not scored by the rubric; serverless only uses resources when images arrive, and Lifecycle removes data no longer needed |
+
+## Key design decisions
+
+**Why upload directly to S3 instead of sending the image through the API?** A synchronous Lambda accepts at most 6 MB of payload (a 5 MB image in base64 exceeds it), and HTTP API bills every 512 KB as one request. A presigned URL lets the browser write exactly one file to one server-chosen key within 5 minutes: cheaper and safer.
+
+**Why create a `PENDING` item before issuing the URL?** So `process-image` only processes registered uploads. A file dropped into the bucket by anyone else has no `PENDING` item and is ignored. The user also sees "Processing" right after the upload.
+
+**Why an async Lambda with a DLQ instead of an SQS queue between S3 and Lambda?** Volumes are small, async invocations already retry twice, and the DLQ keeps failed events for reprocessing. A queue in the middle handles bursts better but adds a component the current scale does not need; it is a future step for high volumes.
+
+**Why publish to SNS after writing DynamoDB?** If the email went first and the DB write failed, the Lambda retry would send duplicate emails while the image stays `PENDING`. This bug actually happened and was fixed (see 5.5, "Troubleshooting").
+
+**Why do only `APPROVED` images get a viewing link?** Violating images are never displayed again, not even to the uploader. The admin email only contains the `s3Key`, never an image link.
+
+## Scalability and limits
+
+- **Automatic scaling:** Lambda adds concurrent instances when many images arrive at once; on-demand DynamoDB and S3 need no capacity planning.
+- **Limits to know:** the account's Rekognition requests-per-second quota and Lambda concurrency. Beyond them, boto3 retries, Lambda retries, and finally the event lands in the DLQ; the `throttles` and `dlq-not-empty` alarms notify the administrator.
+- **API:** throttling at 10 requests/second (burst 20) protects the Lambdas and the bill from abusive callers.
+- **Next steps:** an SQS queue between S3 and Lambda for bursts; AWS WAF on CloudFront; move the CLI scripts to AWS SAM/CloudFormation.
 
 ## Data backup
 

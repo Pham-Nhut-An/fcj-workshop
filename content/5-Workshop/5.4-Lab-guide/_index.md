@@ -227,12 +227,16 @@ Create 2 dedicated roles (least privilege), then 2 Python 3.12 arm64 functions, 
 2. **CloudFront → Create distribution**: S3 web bucket origin with **OAC**, Redirect HTTP to HTTPS, CachingOptimized, response headers **SecurityHeadersPolicy**, default root object `index.html`, WAF off.
 3. Bucket policy allows only `cloudfront.amazonaws.com` with `AWS:SourceArn` = the distribution ARN.
 
+> **Why OAC?** The web bucket keeps Block all public access; only this distribution can read it. Users cannot open the S3 URL directly (tested in 5.5: 403). **SecurityHeadersPolicy** adds HSTS, X-Frame-Options and X-Content-Type-Options against clickjacking and MIME sniffing. WAF is not enabled yet because there is no real traffic; it is a future step.
+
 ![Figure 3.2 – ImageGuard served through CloudFront](../../images/5-workshop/21-6-web-home-dark.jpg)
 *Figure 3.2 – ImageGuard served through CloudFront*
 
 
 ### 3.3. Cognito
 User pool `imageguard-users`, **email** sign-in, self sign-up enabled. App client **SPA without a client secret**: Authorization code grant, scopes `openid email`, callback and sign-out URL = `https://<CLOUDFRONT_DOMAIN>/`. Create a domain (Managed login).
+
+> **Why no client secret, and why PKCE?** The web app runs entirely in the browser, so it cannot keep a secret; anyone can read the JavaScript. PKCE replaces the client secret: the browser creates a random `code_verifier`, sends its SHA-256 hash at sign-in and the original when exchanging the `code` for tokens, so an intercepted `code` is useless. The `state` parameter prevents CSRF. Tokens live in `sessionStorage` and disappear when the tab closes.
 
 ![Figure 3.3 – Cognito Managed Login page](../../images/5-workshop/26-0-cognito-managed-login.jpg)
 *Figure 3.3 – Cognito Managed Login page*
@@ -243,6 +247,8 @@ User pool `imageguard-users`, **email** sign-in, self sign-up enabled. App clien
 - **JWT Authorizer** `cognito-jwt`: issuer `https://cognito-idp.us-east-1.amazonaws.com/<USER_POOL_ID>`, audience `<APP_CLIENT_ID>`, attached to both routes.
 - **CORS**: only origin `https://<CLOUDFRONT_DOMAIN>`, headers `authorization, content-type`, methods `GET, POST, OPTIONS`.
 - **Throttling** on the default route: rate 10, burst 20.
+
+> **Why this setup?** The JWT Authorizer verifies the token signature with the User Pool's public keys, plus issuer and audience, so forged or expired requests are rejected at API Gateway (401) without reaching Lambda or costing money (tests E3, E4 in 5.5). CORS only allows the CloudFront domain, so other websites cannot call the API from a browser. Throttling caps requests per second to protect the Lambdas and the bill.
 
 ### 3.5. Wire everything together
 - CORS on the image bucket: allow `PUT, GET` from the CloudFront domain.
@@ -270,6 +276,10 @@ Run [`step4.sh`](https://github.com/Pham-Nhut-An/fcj-workshop/tree/main/static/c
 | `imageguard-api-5xx` | AWS/ApiGateway 5xx | ≥ 5 |
 
 Every alarm notifies the `imageguard-alerts` SNS topic on both **ALARM** and **OK**. The `imageguard` dashboard shows APPROVED/REJECTED counts, processing time, Lambda, API Gateway, the DLQ and alarm status. Log retention is **14 days** for all 3 Lambdas.
+
+> **Why these alarms?** Each alarm matches one failure mode: Lambda errors (`errors`), quota limits (`throttles`), events that could not be processed (`dlq-not-empty`), alert emails that failed to send (`alert-publish-failed`, a custom metric because an SNS failure does not fail the Lambda), and server-side API errors (`api-5xx`). The threshold is ≥ 1 because at this scale a single error deserves attention; 5xx uses ≥ 5 to avoid alerts for a single stray request. Notifications are also sent on return to **OK** so the administrator knows the issue cleared.
+>
+> **5 custom metrics (EMF):** `ImagesProcessed`, `ImagesApproved`, `ImagesRejected`, `ProcessingLatency` (ms), `AlertPublishFailed`. The Lambda just prints one JSON line in the right format to the log and CloudWatch creates the metrics, so no `cloudwatch:PutMetricData` permission and no extra API calls are needed.
 
 ![Figure 4.1 – 7 alarms and the dashboard created by step4.sh](../../images/5-workshop/28-1-step4-alarms-created.jpg)
 *Figure 4.1 – 7 alarms and the dashboard created by step4.sh*
