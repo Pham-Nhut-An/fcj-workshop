@@ -99,7 +99,7 @@ Run the [`error_test.sh`](/fcj-workshop/code/imageguard/scripts/error_test.sh) s
 | E4 | 100 parallel `GET /images` requests without a token | Blocked before reaching Lambda | ✅ 100/100 returned `401` at the JWT Authorizer; Lambda was never invoked, so no cost. The 10 requests/second limit (burst 20) was not triggered in this test; not yet tested with authenticated requests |
 | E5 | Text file renamed to `.jpg` | Not stuck in `PENDING`, Lambda does not crash | ✅ The item became `REJECTED` with reason `INVALID_IMAGE:InvalidImageFormatException`; the Lambda finished normally, so nothing went to the DLQ |
 
-![Results of the 5 error-case tests in CloudShell](../../../images/5-workshop/30-1-error-cases.jpg)
+![Results of the 5 error-case tests in CloudShell](../../images/5-workshop/30-1-error-cases.jpg)
 *Figure: `error_test.sh` output – E1, E2 return 400; E3 and E4 return 401; E5 the invalid image is marked REJECTED*
 
 ## Troubleshooting

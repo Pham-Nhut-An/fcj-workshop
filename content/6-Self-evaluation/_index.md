@@ -6,8 +6,6 @@ chapter: false
 pre: " <b> 6. </b> "
 ---
 
-# Self-Assessment
-
 During my internship at **Amazon Web Services Vietnam Company Limited** (First Cloud AI Journey program) from **14/09/2026** to **14/12/2026**, I learned and applied cloud computing knowledge to a real project.
 As team lead of AITeamFPT, I deployed the **ImageGuard** workshop – an automated image moderation and labeling system built with Amazon Rekognition on a serverless architecture. Through it I improved my skills in AWS architecture design, IAM security, troubleshooting deployments, writing bilingual technical documentation and teamwork.
 

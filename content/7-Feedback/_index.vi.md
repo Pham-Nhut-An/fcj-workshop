@@ -6,8 +6,6 @@ chapter: false
 pre: " <b> 7. </b> "
 ---
 
-# Chia sẻ, đóng góp ý kiến
-
 ### Đánh giá chung
 
 **Mức độ hài lòng:** Hài lòng.

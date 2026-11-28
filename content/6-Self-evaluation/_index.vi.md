@@ -6,8 +6,6 @@ chapter: false
 pre: " <b> 6. </b> "
 ---
 
-# Tự đánh giá
-
 Trong thời gian thực tập tại **Công ty TNHH Amazon Web Services Việt Nam** (chương trình First Cloud AI Journey) từ **14/09/2026** đến **14/12/2026**, em được học và áp dụng kiến thức điện toán đám mây vào một dự án thực tế.
 Em làm nhóm trưởng nhóm AITeamFPT, triển khai Workshop **ImageGuard** – hệ thống kiểm duyệt và gắn nhãn ảnh tự động bằng Amazon Rekognition trên kiến trúc serverless. Qua đó em cải thiện các kỹ năng thiết kế kiến trúc AWS, bảo mật IAM, xử lý lỗi khi triển khai, viết tài liệu kỹ thuật song ngữ và làm việc nhóm.
 
