@@ -7,6 +7,7 @@ pre: " <b> 5.3. </b> "
 ---
 
 ![Sơ đồ kiến trúc ImageGuard](../../../images/2-proposal/imageguard-architecture.drawio.png)
+*Hình: Sơ đồ kiến trúc ImageGuard*
 
 Sơ đồ chia theo 5 nhóm: **Frontend**, **Authentication & API**, **Compute**, **Storage & AI**, **Notification & Monitoring**. CloudFront nằm ngoài khung Region vì là dịch vụ toàn cầu (global). Màu mũi tên cho biết loại luồng: **xanh dương** là luồng tải ảnh lên, **xanh lá** là luồng xem ảnh, **cam** là luồng xử lý bằng AI, **xám nét đứt** là giám sát, **đỏ nét đứt** là quyền IAM. Mũi tên vẽ theo chiều **gửi yêu cầu** (request).
 

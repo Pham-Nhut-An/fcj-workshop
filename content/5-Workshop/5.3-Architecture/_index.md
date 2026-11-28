@@ -7,6 +7,7 @@ pre: " <b> 5.3. </b> "
 ---
 
 ![ImageGuard architecture diagram](../../images/2-proposal/imageguard-architecture.drawio.png)
+*Figure: ImageGuard architecture diagram*
 
 The diagram has 5 groups: **Frontend**, **Authentication & API**, **Compute**, **Storage & AI**, **Notification & Monitoring**. CloudFront sits outside the Region box because it is a global service. Arrow colors show the flow type: **blue** for upload, **green** for viewing, **orange** for AI processing, **dashed grey** for monitoring, **dashed red** for IAM permissions. Arrows point in the **request** direction.
 

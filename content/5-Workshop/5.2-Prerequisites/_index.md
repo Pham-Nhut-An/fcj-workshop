@@ -18,6 +18,7 @@ pre: " <b> 5.2. </b> "
 | `imageguard-dev-2` | `AmazonCognitoPowerUser`, `AmazonAPIGatewayAdministrator`, `CloudFrontFullAccess` |
 
 ![IAM group with its policies](../../images/5-workshop/0-1-iam-group-policies.png)
+*Figure: IAM group with its policies*
 
 {{% notice warning %}}
 `IAMFullAccess` allows privilege escalation. It is acceptable in this workshop because the user must create Lambda roles; in production, restrict it with a **permission boundary**.

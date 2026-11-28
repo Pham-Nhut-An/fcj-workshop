@@ -18,6 +18,7 @@ pre: " <b> 5.5. </b> "
 | DLQ | Đổi `TABLE_NAME` sai rồi gọi Lambda bất đồng bộ | Sau 2 lần retry, DLQ có message `RetriesExhausted`, `approximateInvokeCount: 3` |
 
 ![Gallery: ảnh APPROVED và REJECTED](../../../images/5-workshop/26-6-web-library-dark.jpg)
+*Hình: Gallery: ảnh APPROVED và REJECTED*
 
 {{% notice note %}}
 **False positive:** súng đồ chơi bằng gỗ bị nhận là *Violence/Weapons* với độ tin cậy ~97%. Hướng cải thiện: tăng `MIN_MODERATION_CONFIDENCE` cho danh mục cụ thể, hoặc thêm bước quản trị viên duyệt lại ảnh `REJECTED`.
@@ -26,6 +27,7 @@ pre: " <b> 5.5. </b> "
 Bài test DLQ còn cho thấy **least privilege** hoạt động: lỗi trong DLQ là `AccessDeniedException … not authorized to perform: dynamodb:UpdateItem on resource: …table/khong-ton-tai`. IAM chặn ngay vì role chỉ được ghi đúng bảng `imageguard-images`.
 
 ![Message trong DLQ: RetriesExhausted](../../../images/5-workshop/15-2b-dlq-message-body.jpg)
+*Hình: Message trong DLQ: RetriesExhausted*
 
 ## Đối chiếu tiêu chí hoàn thành (Proposal mục 3.2)
 
@@ -72,12 +74,16 @@ Hai tỉ lệ trên tính trên **12 ảnh**: 2 ảnh thử ban đầu và 10 �
 | Đăng nhập | URL có `code_challenge_method=S256` (PKCE) | ✅ |
 
 ![API không có token trả 401](../../../images/5-workshop/27-1-api-no-token.jpg)
+*Hình: API không có token trả 401*
 
 ![Truy cập thẳng S3 bị từ chối](../../../images/5-workshop/27-2-s3-web-direct-denied.jpg)
+*Hình: Truy cập thẳng S3 bị từ chối*
 
 ![Mở thẳng Object URL ảnh bị từ chối](../../../images/5-workshop/27-3-s3-image-direct-denied.jpg)
+*Hình: Mở thẳng Object URL ảnh bị từ chối*
 
 ![HTTP chuyển HTTPS và presigned URL hết hạn](../../../images/5-workshop/27-4-https-redirect-presigned-expired.jpg)
+*Hình: HTTP chuyển HTTPS và presigned URL hết hạn*
 
 Web được phục vụ từ edge **SGN (TP.HCM)** của CloudFront, nên người dùng Việt Nam vẫn tải nhanh dù backend ở us-east-1.
 
@@ -119,8 +125,10 @@ Chạy script [`error_test.sh`](/fcj-workshop/code/imageguard/scripts/error_test
 **Cách sửa:** tắt mã hóa topic → lịch sử ghi *"Successfully executed action"*. Nếu bắt buộc mã hóa: dùng customer managed KMS key có key policy cho `cloudwatch.amazonaws.com` (~1 USD/tháng). Email chỉ chứa `userId`/`imageId`, không có ảnh hay link ảnh.
 
 ![Failed to execute action](../../../images/5-workshop/28-3a-bug-sns-kms-failed.jpg)
+*Hình: Failed to execute action*
 
 ![Successfully executed action sau khi sửa](../../../images/5-workshop/28-3b-fix-sns-alarm-success.jpg)
+*Hình: Successfully executed action sau khi sửa*
 
 ### 4. Giao diện Console khác tài liệu
 - Lambda mới: role đặt ở **Custom settings → Additional settings → Custom execution role**.
