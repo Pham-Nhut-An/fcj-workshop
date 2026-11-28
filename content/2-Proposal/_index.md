@@ -149,19 +149,9 @@ The initial plan used **Amazon Bedrock** for invoice processing. During testing,
 
 Internship period: 14/09/2026 – 14/12/2026. Workshop submission deadline: **30/11/2026** (confirmed by FCAJ).
 
-### 5.1. Roles
+Every member must understand the whole architecture and be able to explain all of it, not only their own part.
 
-| Member | Main responsibility |
-|---|---|
-| Member A | Team lead, integration, IAM & security |
-| Member B | `process-image` Lambda, Rekognition integration, test image set and accuracy evaluation |
-| Member C | Cognito, API Gateway, `presign-upload` and `get-images` Lambdas |
-| Member D | Static web UI, S3 + CloudFront (OAC) |
-| Member E | CloudWatch, SNS, DLQ, cost estimation, clean-up guide |
-
-*Every member must understand the whole architecture and be able to explain all of it, not only their own part.*
-
-### 5.2. Weekly Timeline
+### 5.1. Weekly Timeline
 
 | Internship week | Dates | Tasks | Output |
 |---|---|---|---|

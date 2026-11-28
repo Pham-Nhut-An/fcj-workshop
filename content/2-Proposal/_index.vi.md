@@ -149,19 +149,9 @@ Phương án ban đầu dùng **Amazon Bedrock** để xử lý hóa đơn. Khi 
 
 Thời gian thực tập: 14/09/2026 – 14/12/2026. Hạn nộp Workshop: **30/11/2026** (theo thông báo của FCAJ).
 
-### 5.1. Phân công vai trò
+Mỗi thành viên phải hiểu toàn bộ kiến trúc và tự giải thích được tất cả các phần, không chỉ phần mình phụ trách.
 
-| Thành viên | Vai trò chính |
-|---|---|
-| Thành viên A | Trưởng nhóm, tích hợp hệ thống, IAM & bảo mật |
-| Thành viên B | Lambda `process-image`, tích hợp Rekognition, bộ ảnh thử nghiệm và đánh giá độ chính xác |
-| Thành viên C | Cognito, API Gateway, Lambda `presign-upload` và `get-images` |
-| Thành viên D | Giao diện web tĩnh, S3 + CloudFront (OAC) |
-| Thành viên E | CloudWatch, SNS, DLQ, dự toán chi phí, hướng dẫn Clean-up |
-
-*Mỗi thành viên phải hiểu toàn bộ kiến trúc và tự giải thích được tất cả các phần, không chỉ phần mình phụ trách.*
-
-### 5.2. Timeline theo tuần
+### 5.1. Timeline theo tuần
 
 | Tuần thực tập | Thời gian | Công việc | Đầu ra |
 |---|---|---|---|
