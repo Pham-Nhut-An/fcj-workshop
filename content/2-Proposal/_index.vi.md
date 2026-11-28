@@ -111,6 +111,7 @@ Số thứ tự trong bảng trùng với số trên các mũi tên ở Hình 1.
 | 10 | User → API Gateway | Web gọi `GET /images` kèm token (dùng chung đường mũi tên với bước 3) |
 | 10a | API Gateway → Lambda `get-images` | API Gateway gọi Lambda đọc kết quả |
 | 10b | `get-images` → DynamoDB | Truy vấn **chỉ theo `userId` lấy từ claim `sub` của token**, sắp xếp ảnh mới nhất trước; ảnh **APPROVED** được hiển thị qua Presigned URL GET ngắn hạn, không public |
+| 10c | User → S3 `imageguard-images` | Trình duyệt tải ảnh đã duyệt thẳng từ S3 bằng presigned GET URL (5 phút); ảnh bị chặn không có URL nên không bao giờ được hiển thị |
 | 11 | 3 Lambda → CloudWatch | Ghi log và metric (Embedded Metric Format) |
 | 12 | CloudWatch → SNS | Alarm (lỗi Lambda, DLQ có message, API 5xx…) gửi email qua SNS |
 | — | IAM → 3 Lambda | Mỗi Lambda có một **IAM execution role** riêng theo Least Privilege (mục 4.3) |

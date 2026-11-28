@@ -111,6 +111,7 @@ The numbers in this table match the numbers on the arrows in Figure 1.
 | 10 | User → API Gateway | The web app calls `GET /images` with the token (shares the arrow of step 3) |
 | 10a | API Gateway → Lambda `get-images` | API Gateway invokes the read Lambda |
 | 10b | `get-images` → DynamoDB | Queries **only by the `userId` taken from the token's `sub` claim**, newest first; **APPROVED** images are shown through short-lived presigned GET URLs, never made public |
+| 10c | User → S3 `imageguard-images` | The browser loads approved images directly from S3 with the presigned GET URL (5 minutes); blocked images have no URL and are never served |
 | 11 | 3 Lambdas → CloudWatch | Write logs and metrics (Embedded Metric Format) |
 | 12 | CloudWatch → SNS | Alarms (Lambda errors, messages in the DLQ, API 5xx, …) send emails through SNS |
 | — | IAM → 3 Lambdas | Each Lambda has its own least-privilege **IAM execution role** (Section 4.3) |
