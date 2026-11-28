@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>ImageGuard</title>
+  <style>
+    :root{
+      --bg:#050506; --bg2:#0b0c0f; --panel:#0e1014; --panel2:#12151b; --line:#1f232b; --line2:#2a303b;
+      --ink:#f2f3f5; --muted:#8b919c; --dim:#5d636e;
+      --blue:#3f7bff; --blue2:#7aa3ff; --blue-soft:rgba(63,123,255,.12);
+      --ok:#3ccf8e; --ok-soft:rgba(60,207,142,.12); --bad:#ff5d5d; --bad-soft:rgba(255,93,93,.12);
+      --wait:#f5b84a; --wait-soft:rgba(245,184,74,.12);
+      --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+      --cut:14px;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg)}
+    body{margin:0;min-height:100vh;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);line-height:1.55;
+      background:radial-gradient(circle at 1px 1px,rgba(255,255,255,.07) 1px,transparent 0) 0 0/22px 22px,var(--bg)}
+    h1,h2,h3{margin:0;letter-spacing:-.02em}
+    .hidden{display:none!important}
+    .muted{color:var(--muted)} .mono{font-family:var(--mono)}
+    .eyebrow{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:inline-flex;align-items:center;gap:8px}
+    .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue);box-shadow:0 0 10px var(--blue)}
+    .cut{clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)))}
+    .panel{background:linear-gradient(160deg,var(--panel2),var(--panel) 60%);border:1px solid var(--line);position:relative}
+    .panel.cut{border:none;background:linear-gradient(var(--line2),var(--line2));padding:1px}
+    .panel.cut>.in{background:linear-gradient(160deg,var(--panel2),var(--panel) 60%);height:100%}
+    .panel.cut>.in.cut{clip-path:polygon(0 0,calc(100% - var(--cut) + 1px) 0,100% calc(var(--cut) - 1px),100% 100%,calc(var(--cut) - 1px) 100%,0 calc(100% - var(--cut) + 1px))}
+
+    button,select,input{font:inherit;color:inherit}
+    .btn{font-size:14px;font-weight:600;padding:9px 16px;border-radius:9px;border:1px solid var(--line2);background:var(--panel2);cursor:pointer;transition:border-color .15s,background .15s,color .15s;display:inline-flex;align-items:center;gap:8px}
+    .btn:hover{border-color:#3a4250}
+    .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+    .btn.primary:hover{background:#2f6cf0}
+    .btn.ghost{background:transparent}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    :focus-visible{outline:2px solid var(--blue2);outline-offset:2px}
+    svg{flex:none}
+
+    header{position:sticky;top:0;z-index:20;background:rgba(5,5,6,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+    .bar{max-width:1180px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:18px}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;letter-spacing:-.01em}
+    .logo-mark{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--blue-soft);border:1px solid rgba(63,123,255,.4)}
+    nav{display:flex;gap:4px;margin-left:8px}
+    nav a{font-size:14px;color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:7px}
+    nav a:hover{color:var(--ink);background:var(--panel2)}
+    .account{margin-left:auto;display:flex;align-items:center;gap:10px;min-width:0}
+    #user{font-family:var(--mono);font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
+
+    main{max-width:1180px;margin:0 auto;padding:34px 22px 70px}
+    section{margin-bottom:26px}
+
+    /* Guest */
+    .hero{padding:54px 0 26px}
+    .hero h1{font-size:clamp(34px,6vw,62px);line-height:1.08;margin:18px 0 16px;font-weight:800}
+    .hero h1 span{color:var(--blue)}
+    .hero p{max-width:600px;color:var(--muted);font-size:17px;margin:0 0 28px}
+    .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+    .flow{display:flex;flex-wrap:wrap;gap:8px;margin:34px 0 8px;font-family:var(--mono);font-size:12.5px;color:var(--muted);align-items:center}
+    .flow b{font-weight:500;color:var(--ink);border:1px solid var(--line2);padding:5px 10px;border-radius:6px;background:var(--panel)}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:26px}
+    .step .in{padding:22px}
+    .step .ico{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;background:var(--blue-soft);border:1px solid rgba(63,123,255,.35);margin-bottom:16px}
+    .step .tag{float:right;font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--dim)}
+    .step h3{font-size:18px;margin-bottom:6px}
+    .step p{margin:0;color:var(--muted);font-size:14.5px}
+
+    /* Stats */
+    .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+    .stat .in{padding:16px 18px}
+    .stat .k{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+    .stat .v{font-size:28px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+    .stat.ok .v{color:var(--ok)} .stat.bad .v{color:var(--bad)} .stat.wait .v{color:var(--wait)} .stat.blue .v{color:var(--blue2)}
+
+    /* Upload */
+    .card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+    .card-h h2{font-size:20px}
+    .box .in{padding:22px}
+    .drop{position:relative;display:flex;align-items:center;gap:16px;padding:22px;border:1.5px dashed var(--line2);border-radius:12px;background:rgba(255,255,255,.015);cursor:pointer;transition:border-color .15s,background .15s}
+    .drop:hover,.drop.over{border-color:var(--blue);background:var(--blue-soft)}
+    .drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .drop .ico{width:46px;height:46px;border-radius:10px;display:grid;place-items:center;border:1px solid var(--line2);background:var(--panel2)}
+    .drop strong{display:block}
+    .queue{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+    .queue li{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg2);font-size:14px}
+    .queue img{width:40px;height:40px;object-fit:cover;border-radius:6px;flex:none;background:var(--panel2)}
+    .queue .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .queue .st{font-size:12.5px;color:var(--muted)}
+    .queue .st.ok{color:var(--ok)} .queue .st.bad{color:var(--bad)} .queue .st.run{color:var(--blue2)}
+    .upload-actions{display:flex;gap:10px;margin-top:14px;align-items:center;flex-wrap:wrap}
+
+    /* Library */
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+    .tabs{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:10px;background:var(--bg2)}
+    .tabs button{border:0;background:transparent;padding:6px 12px;border-radius:7px;font-size:13.5px;color:var(--muted);cursor:pointer}
+    .tabs button.on{background:var(--panel2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line2)}
+    .tabs .n{font-family:var(--mono);font-size:12px;margin-left:5px;color:var(--dim)}
+    .search{flex:1;min-width:200px;position:relative}
+    .search input{width:100%;padding:9px 12px 9px 36px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2)}
+    .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%)}
+    select{padding:9px 12px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2)}
+    .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+    .chips .lbl{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--dim);margin-right:4px}
+    .chip{border:1px solid var(--line2);background:transparent;border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--muted);cursor:pointer}
+    .chip:hover,.chip.on{border-color:var(--blue);color:var(--blue2);background:var(--blue-soft)}
+    .live{font-size:12.5px;color:var(--wait);display:inline-flex;align-items:center;gap:6px}
+    .live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--wait);animation:pulse 1.2s infinite}
+    @keyframes pulse{50%{opacity:.25}}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+    .item{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel);cursor:pointer;transition:border-color .15s,transform .15s;text-align:left;padding:0;display:flex;flex-direction:column}
+    .item:hover{border-color:var(--line2);transform:translateY(-2px)}
+    .thumb{aspect-ratio:4/3;background:var(--bg2);display:flex;align-items:center;justify-content:center;text-align:center;padding:14px;color:var(--muted);font-size:13px;position:relative}
+    .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .thumb.blocked{background:repeating-linear-gradient(45deg,rgba(255,93,93,.08) 0 10px,rgba(255,93,93,.03) 10px 20px);color:var(--bad);font-weight:600}
+    .thumb.waiting{background:linear-gradient(90deg,var(--bg2) 0%,#161a21 50%,var(--bg2) 100%);background-size:200% 100%;animation:shimmer 1.4s linear infinite;color:var(--wait)}
+    @keyframes shimmer{to{background-position:-200% 0}}
+    .lang{display:inline-flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden;flex:none}
+    .lang button{font:600 12px/1 inherit;font-family:inherit;padding:8px 10px;background:transparent;border:0;color:var(--muted);cursor:pointer}
+    .lang button.on{background:var(--panel2);color:var(--ink)}
+    .lang button:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+    @media (prefers-reduced-motion:reduce){.thumb.waiting,.live::before{animation:none}}
+    .meta{padding:12px 14px 14px;display:flex;flex-direction:column;gap:9px}
+    .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .badge{white-space:nowrap;display:inline-flex;align-items:center;gap:6px;font-size:12px;letter-spacing:.01em;padding:3px 9px;border-radius:999px;font-weight:600}
+    .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+    .APPROVED{color:var(--ok);background:var(--ok-soft)} .REJECTED{color:var(--bad);background:var(--bad-soft)} .PENDING{color:var(--wait);background:var(--wait-soft)}
+    .time{font-family:var(--mono);font-size:12px;color:var(--dim)}
+    .tags{display:flex;flex-wrap:wrap;gap:5px}
+    .tag{font-size:12px;padding:2px 8px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);color:#c4c8cf}
+    .empty{grid-column:1/-1;text-align:center;padding:46px 12px;color:var(--muted);border:1px dashed var(--line2);border-radius:12px}
+
+    /* Modal */
+    dialog{border:0;padding:0;background:transparent;color:var(--ink);max-width:min(920px,94vw);width:100%}
+    dialog::backdrop{background:rgba(0,0,0,.72);backdrop-filter:blur(3px)}
+    .modal .in{display:grid;grid-template-columns:1.3fr 1fr}
+    .modal .pic{background:var(--bg2);min-height:320px;display:flex;align-items:center;justify-content:center;padding:18px;color:var(--muted);text-align:center}
+    .modal .pic img{max-width:100%;max-height:70vh;border-radius:8px}
+    .modal .pic.blocked{background:repeating-linear-gradient(45deg,rgba(255,93,93,.08) 0 10px,rgba(255,93,93,.03) 10px 20px);color:var(--bad);font-weight:600}
+    .modal .info{padding:22px;display:flex;flex-direction:column;gap:14px}
+    .modal dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:14px}
+    .modal dt{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);padding-top:3px}
+    .modal dd{margin:0;word-break:break-all}
+    .x{position:absolute;top:12px;right:14px;z-index:2}
+
+    /* Toast */
+    #toasts{position:fixed;right:18px;bottom:18px;display:grid;gap:8px;z-index:50}
+    .toast{background:var(--panel2);border:1px solid var(--line2);border-left:3px solid var(--blue);padding:10px 14px;border-radius:9px;font-size:14px;max-width:340px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+    .toast.ok{border-left-color:var(--ok)} .toast.bad{border-left-color:var(--bad)}
+
+    footer{text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px;padding:0 20px 34px;letter-spacing:.06em}
+
+    @media (max-width:860px){.stats{grid-template-columns:repeat(2,1fr)}.stats .stat:last-child{grid-column:1/-1}.modal .in{grid-template-columns:1fr}nav{display:none}}
+    @media (max-width:560px){.tabs{width:100%;overflow-x:auto}.tabs button{white-space:nowrap}.row{flex-direction:column;align-items:flex-start;gap:4px}.drop{padding:16px}.bar{padding:10px 14px}#user{display:none}main{padding:22px 14px 50px}.grid{grid-template-columns:repeat(2,1fr);gap:10px}.meta{padding:10px}.hero{padding-top:30px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <div class="logo">
+        <span class="logo-mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7aa3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg></span>
+        ImageGuard
+      </div>
+      <nav id="nav" class="hidden"><a href="#upload" data-i18n="nav.upload">Tải lên</a><a href="#library" data-i18n="nav.library">Thư viện</a></nav>
+      <div class="account">
+        <div class="lang" id="lang" role="group" aria-label="Ngôn ngữ / Language"><button type="button" data-lang="vi">VI</button><button type="button" data-lang="en">EN</button></div>
+        <span id="user"></span>
+        <button id="loginBtn" class="btn primary" data-i18n="login">Đăng nhập</button>
+        <button id="logoutBtn" class="btn ghost hidden" data-i18n="logout">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Chua dang nhap -->
+    <section id="guest">
+      <div class="hero">
+        <span class="eyebrow">Amazon Rekognition · Serverless</span>
+        <h1 data-i18n-html="hero.h1">Kiểm duyệt ảnh<br><span>tự động bằng AI</span></h1>
+        <p data-i18n="hero.p">Tải ảnh lên, hệ thống kiểm tra nội dung trong vài giây. Ảnh vi phạm bị chặn và quản trị viên nhận email cảnh báo; ảnh hợp lệ được gắn nhãn mô tả.</p>
+        <div class="cta">
+          <button class="btn primary" id="heroLogin"><span data-i18n="hero.cta">Đăng nhập để bắt đầu</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+        <div class="flow" data-i18n-aria="flow.aria" aria-label="Luồng xử lý">
+          <b data-i18n="flow.browser">Trình duyệt</b>→<b>S3</b>→<b>Lambda</b>→<b>Rekognition</b>→<b>DynamoDB</b>→<b>SNS</b>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="panel cut step"><div class="in cut">
+          <span class="tag">01 · UPLOAD</span>
+          <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7aa3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg></div>
+          <h3 data-i18n="s1.h">Tải ảnh lên</h3><p data-i18n="s1.p">Ảnh đi thẳng lên Amazon S3 qua URL ký sẵn, hết hạn sau 5 phút. Không đi qua máy chủ trung gian.</p>
+        </div></div>
+        <div class="panel cut step"><div class="in cut">
+          <span class="tag">02 · MODERATE</span>
+          <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7aa3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/></svg></div>
+          <h3 data-i18n="s2.h">AI kiểm duyệt</h3><p data-i18n="s2.p">Phát hiện bạo lực, khiêu dâm, ma túy và thuốc lá, biểu tượng thù ghét. Ảnh vi phạm bị chặn ngay.</p>
+        </div></div>
+        <div class="panel cut step"><div class="in cut">
+          <span class="tag">03 · LABEL</span>
+          <div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7aa3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12l-8 8-9-9V3h8l9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></div>
+          <h3 data-i18n="s3.h">Gắn nhãn</h3><p data-i18n="s3.p">Ảnh hợp lệ được gắn tối đa 10 nhãn mô tả nội dung, giúp tìm lại ảnh nhanh.</p>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- Da dang nhap -->
+    <div id="app" class="hidden">
+      <section>
+        <div class="stats">
+          <div class="panel cut stat"><div class="in cut"><div class="k" data-i18n="st.total">Tổng ảnh</div><div class="v" id="sTotal">0</div></div></div>
+          <div class="panel cut stat ok"><div class="in cut"><div class="k" data-i18n="st.ok">Đã duyệt</div><div class="v" id="sOk">0</div></div></div>
+          <div class="panel cut stat bad"><div class="in cut"><div class="k" data-i18n="st.bad">Bị chặn</div><div class="v" id="sBad">0</div></div></div>
+          <div class="panel cut stat wait"><div class="in cut"><div class="k" data-i18n="st.wait">Đang xử lý</div><div class="v" id="sWait">0</div></div></div>
+          <div class="panel cut stat blue"><div class="in cut"><div class="k" data-i18n="st.avg" data-i18n-title="st.avgTip" title="Trung bình từ lúc xin URL tải lên đến khi kiểm duyệt xong (gồm cả thời gian upload)">TB hoàn tất</div><div class="v" id="sAvg">–</div></div></div>
+        </div>
+      </section>
+
+      <section id="upload">
+        <div class="panel cut box"><div class="in cut">
+          <div class="card-h"><h2 data-i18n="up.h">Tải ảnh lên</h2><span class="eyebrow" data-i18n="up.hint">JPEG · tối đa 5 MB · nhiều ảnh</span></div>
+          <label class="drop" id="drop">
+            <input type="file" id="fileInput" accept="image/jpeg" multiple>
+            <span class="ico" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7aa3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg></span>
+            <span><strong data-i18n="up.drop">Chọn hoặc kéo thả ảnh vào đây</strong><span class="muted" data-i18n="up.dropHint">Có thể chọn nhiều ảnh cùng lúc; ảnh được kiểm tra định dạng ngay trên trình duyệt.</span></span>
+          </label>
+          <ul class="queue" id="queue"></ul>
+          <div class="upload-actions">
+            <button id="uploadBtn" class="btn primary" disabled data-i18n="up.btn">Tải lên</button>
+            <button id="clearBtn" class="btn ghost hidden" data-i18n="up.clear">Xóa danh sách</button>
+            <span id="message" class="muted" role="status"></span>
+          </div>
+        </div></div>
+      </section>
+
+      <section id="library">
+        <div class="panel cut box"><div class="in cut">
+          <div class="card-h"><h2 data-i18n="lib.h">Thư viện ảnh</h2>
+            <div style="display:flex;gap:10px;align-items:center"><span id="live" class="live hidden" data-i18n="lib.live">Đang cập nhật</span><button id="refreshBtn" class="btn" data-i18n="lib.refresh">Làm mới</button></div></div>
+          <div class="toolbar">
+            <div class="tabs" id="tabs" role="tablist">
+              <button data-f="ALL" class="on"><span data-i18n="tab.all">Tất cả</span><span class="n" id="nALL">0</span></button>
+              <button data-f="APPROVED"><span data-i18n="st.ok">Đã duyệt</span><span class="n" id="nAPPROVED">0</span></button>
+              <button data-f="REJECTED"><span data-i18n="st.bad">Bị chặn</span><span class="n" id="nREJECTED">0</span></button>
+              <button data-f="PENDING"><span data-i18n="st.wait">Đang xử lý</span><span class="n" id="nPENDING">0</span></button>
+            </div>
+            <label class="search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b919c" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+              <input id="q" type="search" data-i18n-ph="lib.q" data-i18n-aria="lib.qAria" placeholder="Tìm theo nhãn hoặc danh mục (vd: Cat, Violence)" aria-label="Tìm theo nhãn"></label>
+            <select id="sort" data-i18n-aria="lib.sort" aria-label="Sắp xếp"><option value="new" data-i18n="lib.new">Mới nhất</option><option value="old" data-i18n="lib.old">Cũ nhất</option></select>
+          </div>
+          <div class="chips" id="chips"></div>
+          <div id="gallery" class="grid"></div>
+        </div></div>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="modal" class="panel cut modal" data-i18n-aria="m.aria" aria-label="Chi tiết ảnh"><div class="in cut">
+    <button class="btn ghost x" id="closeModal" data-i18n-aria="m.close" aria-label="Đóng">✕</button>
+    <div class="pic" id="mPic"></div>
+    <div class="info">
+      <span id="mBadge"></span>
+      <dl>
+        <dt data-i18n="m.created">Tải lên</dt><dd id="mCreated"></dd>
+        <dt data-i18n="m.processed">Xử lý xong</dt><dd id="mProcessed"></dd>
+        <dt data-i18n="m.duration">Tổng thời gian</dt><dd id="mDuration"></dd>
+        <dt>Image ID</dt><dd class="mono" id="mId"></dd>
+      </dl>
+      <div><div class="eyebrow" id="mTagsTitle" style="margin-bottom:8px">Nhãn</div><div class="tags" id="mTags"></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="copyId" data-i18n="m.copyId">Sao chép ID</button>
+        <button class="btn" id="copyLabels" data-i18n="m.copyLabels">Sao chép nhãn</button>
+      </div>
+    </div>
+  </div></dialog>
+
+  <div id="toasts" aria-live="polite"></div>
+  <footer>IMAGEGUARD · AITEAMFPT · AMAZON REKOGNITION ON AWS SERVERLESS</footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
