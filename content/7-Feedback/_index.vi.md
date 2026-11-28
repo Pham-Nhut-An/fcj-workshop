@@ -10,6 +10,8 @@ pre: " <b> 7. </b> "
 
 ### Đánh giá chung
 
+**Mức độ hài lòng:** Hài lòng.
+
 **1. Môi trường làm việc**
 Văn phòng AWS Việt Nam thoải mái, yên tĩnh, phù hợp để tập trung học và làm Workshop. Được làm việc trên tài khoản AWS thật giúp em hiểu rõ cách các dịch vụ vận hành và phát sinh chi phí như thế nào.
 

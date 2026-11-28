@@ -227,7 +227,7 @@ Tạo 2 role riêng (least privilege) rồi 2 function Python 3.12 arm64, 128 MB
 2. **CloudFront → Create distribution**: origin S3 bucket web với **OAC**, Redirect HTTP to HTTPS, CachingOptimized, Response headers **SecurityHeadersPolicy**, Default root object `index.html`, WAF không bật.
 3. Bucket policy chỉ cho `cloudfront.amazonaws.com` với `AWS:SourceArn` = ARN distribution.
 
-![Hình 3.2 – Trang ImageGuard qua CloudFront](../../../images/5-workshop/21-5-web-first-load-v2.jpg)
+![Hình 3.2 – Trang ImageGuard qua CloudFront](../../../images/5-workshop/21-6-web-home-dark.jpg)
 *Hình 3.2 – Trang ImageGuard qua CloudFront*
 
 
@@ -248,8 +248,13 @@ User pool `imageguard-users`, đăng nhập bằng **email**, cho tự đăng k�
 - CORS cho bucket ảnh: cho phép `PUT, GET` từ domain CloudFront.
 - Điền `config.js` (Cognito domain, client ID, redirect URI, API URL), upload lại, tạo CloudFront invalidation `/*`.
 
-![Hình 3.4 – Kết quả cuối: người dùng đăng nhập, tải ảnh lên và xem trạng thái APPROVED / REJECTED](../../../images/5-workshop/26-4-web-gallery-v2.jpg)
-*Hình 3.4 – Kết quả cuối: người dùng đăng nhập, tải ảnh lên và xem trạng thái APPROVED / REJECTED*
+![Hình 3.4 – Kết quả cuối: người dùng đăng nhập, tải ảnh lên và xem trạng thái APPROVED / REJECTED](../../../images/5-workshop/26-5-web-dashboard-dark.jpg)
+*Hình 3.4 – Kết quả cuối: thống kê, ô tải nhiều ảnh, thư viện có lọc theo trạng thái và tìm theo nhãn*
+
+![Hình 3.5 – Cửa sổ chi tiết ảnh](../../../images/5-workshop/26-7-web-detail-dark.jpg)
+*Hình 3.5 – Cửa sổ chi tiết ảnh: nhãn, thời gian tải lên / xử lý xong, Image ID*
+
+> **Các tính năng trên giao diện** (lọc theo trạng thái, tìm theo nhãn, sắp xếp, nhãn phổ biến, thống kê, xem chi tiết, tải nhiều ảnh, kiểm tra 3 byte đầu của file JPEG) đều chạy trên trình duyệt với dữ liệu trả về từ `GET /images`, không cần thêm API hay dịch vụ nào, nên kiến trúc giữ nguyên.
 
 
 ## Step 4 – Giám sát

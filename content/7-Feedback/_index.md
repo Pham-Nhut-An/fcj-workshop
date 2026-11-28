@@ -10,6 +10,8 @@ pre: " <b> 7. </b> "
 
 ### Overall Evaluation
 
+**Satisfaction level:** Satisfied.
+
 **1. Working Environment**
 The AWS Vietnam office is comfortable and quiet, good for focusing on study and the workshop. Working on a real AWS account helped me understand how the services actually run and how costs are incurred.
 

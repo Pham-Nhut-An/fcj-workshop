@@ -21,6 +21,11 @@ pre: " <b> 2. </b> "
 
 Kết quả được lưu vào **Amazon DynamoDB** và hiển thị trên giao diện web chỉ sau vài giây. Toàn bộ hệ thống chạy theo kiến trúc **hướng sự kiện (event-driven)** và **serverless**: không có máy chủ nào phải quản lý, chỉ trả tiền theo lượt sử dụng.
 
+**Đối tượng sử dụng:**
+- **Người dùng cuối:** thành viên của trang rao vặt, diễn đàn hoặc câu lạc bộ sinh viên, cần đăng ảnh và xem lại ảnh của mình.
+- **Quản trị viên nền tảng:** người chịu trách nhiệm kiểm duyệt nội dung, nhận email cảnh báo khi có ảnh vi phạm.
+- **Đội vận hành:** theo dõi hệ thống qua CloudWatch Dashboard và Alarms.
+
 ## 2. Vấn đề cần giải quyết
 
 - Các nền tảng cho phép người dùng đăng ảnh (rao vặt, diễn đàn, nhóm cộng đồng) nhận rất nhiều ảnh mỗi ngày. **Duyệt tay** từng ảnh tốn nhân lực, chậm, và người duyệt phải tiếp xúc trực tiếp với nội dung độc hại.
@@ -219,3 +224,12 @@ Trong giai đoạn phát triển và demo (dự kiến < 300 ảnh), chi phí Re
 - Hệ thống giám sát gồm CloudWatch Dashboard, Alarms và email cảnh báo.
 - Tài liệu workshop song ngữ, có thể triển khai lại từ đầu, kèm phần Testing, Troubleshooting và Clean-up.
 - Nhóm nắm vững các kiến thức thực tế: kiến trúc event-driven serverless, IAM Least Privilege, dịch vụ AI của AWS, giám sát và tối ưu chi phí, cũng như cách xử lý khi một dịch vụ bị giới hạn quota.
+
+## 9. Hướng phát triển
+
+- **Cải thiện độ chính xác kiểm duyệt:** đặt ngưỡng riêng cho từng danh mục (ví dụ hạ ngưỡng `Drugs & Tobacco` để không bỏ sót ảnh hút thuốc) và đo lại trên bộ ảnh thử 20–50 ảnh.
+- **Bước quản trị viên duyệt lại:** ảnh `REJECTED` đưa vào hàng chờ để quản trị viên xác nhận, giảm thiệt hại do chặn nhầm (ví dụ súng đồ chơi).
+- **Tìm kiếm và lọc ảnh theo nhãn, hỗ trợ thêm PNG**, bảng tin công khai cho ảnh đã duyệt.
+- **Hạ tầng dưới dạng mã (IaC):** chuyển các script CLI sang AWS SAM hoặc CloudFormation và thêm CI/CD để triển khai lại tự động.
+- **Bảo vệ thêm lớp ngoài:** gắn AWS WAF cho CloudFront khi có lượng người dùng thật.
+- **Triển khai cho người dùng Việt Nam:** chuyển sang Region ap-southeast-1 (Singapore) để giảm độ trễ và đáp ứng quy định về dữ liệu cá nhân.

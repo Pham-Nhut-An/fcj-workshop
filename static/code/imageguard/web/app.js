@@ -5,6 +5,10 @@
   const MAX_BYTES = 5 * 1024 * 1024;
   const $ = (id) => document.getElementById(id);
   let pollTimer = null;
+  let pollCount = 0;
+  let images = [];
+  let lastLoaded = 0;
+  const known = new Map(); // imageId -> status, de bao toast khi trang thai doi
 
   // ---------- PKCE helpers ----------
   const base64Url = (bytes) =>
@@ -109,47 +113,110 @@
     return res.json();
   }
 
-  async function upload() {
-    const file = $("fileInput").files[0];
-    if (!file) return showMessage("Hãy chọn một ảnh.", true);
-    if (file.type !== "image/jpeg") return showMessage("Chỉ nhận ảnh JPEG.", true);
-    if (file.size > MAX_BYTES) return showMessage("Ảnh vượt quá 5 MB.", true);
 
-    $("uploadBtn").disabled = true;
-    try {
-      showMessage("Đang xin URL tải lên…");
-      const { uploadUrl, contentType } = await api("/upload-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contentType: file.type }),
-      });
-      showMessage("Đang tải ảnh lên S3…");
-      // PUT thang len S3 bang presigned URL: anh khong di qua API Gateway / Lambda
-      const put = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": contentType }, body: file });
-      if (!put.ok) throw new Error(`S3 trả về ${put.status}`);
-      showMessage("Đã tải lên, đang kiểm duyệt…");
-      $("fileInput").value = "";
-      resetIcon();
-      showSelected(null);
-      await loadImages();
-    } catch (err) {
-      showMessage(err.message, true);
-    } finally {
-      $("uploadBtn").disabled = false;
+  // ---------- Kiem tra file ngay tren trinh duyet ----------
+  // Doc 3 byte dau: JPEG luon bat dau bang FF D8 FF (tranh file doi duoi .jpg)
+  async function isRealJpeg(file) {
+    const b = new Uint8Array(await file.slice(0, 3).arrayBuffer());
+    return b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff;
+  }
+
+  // ---------- Hang doi upload (nhieu anh, tai lan luot) ----------
+  let queue = []; // {file, url, li, st, state}
+  function addFiles(files) {
+    for (const file of files) {
+      const li = el("li");
+      const pic = el("img"); pic.alt = "";
+      const url = URL.createObjectURL(file); pic.src = url;
+      const name = el("span", "name", file.name);
+      const st = el("span", "st", "Chờ tải lên");
+      li.append(pic, name, st);
+      $("queue").append(li);
+      const q = { file, url, li, st, state: "wait" };
+      queue.push(q);
+      validate(q);
     }
+    syncUploadBtn();
+  }
+  async function validate(q) {
+    const f = q.file;
+    let err = null;
+    if (f.type !== "image/jpeg") err = "Không phải JPEG";
+    else if (f.size > MAX_BYTES) err = "Vượt quá 5 MB";
+    else if (!(await isRealJpeg(f))) err = "Nội dung không phải ảnh JPEG";
+    if (err) { q.state = "invalid"; setSt(q, err, "bad"); }
+    syncUploadBtn();
+  }
+  function setSt(q, text, cls) { q.st.textContent = text; q.st.className = "st " + (cls || ""); }
+  function syncUploadBtn() {
+    const ready = queue.some((q) => q.state === "wait");
+    $("uploadBtn").disabled = !ready;
+    $("clearBtn").classList.toggle("hidden", !queue.length);
+  }
+  function clearQueue() {
+    queue.filter((q) => q.state !== "run").forEach((q) => { URL.revokeObjectURL(q.url); q.li.remove(); });
+    queue = queue.filter((q) => q.state === "run");
+    syncUploadBtn(); showMessage("");
+  }
+
+  async function uploadOne(q) {
+    q.state = "run"; setSt(q, "Đang xin URL…", "run");
+    const { uploadUrl, contentType } = await api("/upload-url", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contentType: q.file.type }),
+    });
+    setSt(q, "Đang tải lên S3…", "run");
+    // PUT thang len S3 bang presigned URL: anh khong di qua API Gateway / Lambda
+    const put = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": contentType }, body: q.file });
+    if (!put.ok) throw new Error(`S3 trả về ${put.status}`);
+    q.state = "done"; setSt(q, "Đã tải lên ✓", "ok");
+  }
+
+  async function upload() {
+    const todo = queue.filter((q) => q.state === "wait");
+    if (!todo.length) return;
+    $("uploadBtn").disabled = true;
+    let ok = 0;
+    for (const q of todo) {
+      try { await uploadOne(q); ok++; }
+      catch (err) { q.state = "error"; setSt(q, err.message, "bad"); }
+    }
+    showMessage(ok ? `Đã tải lên ${ok} ảnh, đang kiểm duyệt…` : "Không tải lên được ảnh nào.", !ok);
+    syncUploadBtn();
+    pollCount = 0;
+    await loadImages().catch((e) => showMessage(e.message, true));
   }
 
   async function loadImages() {
-    const { images } = await api("/images");
-    renderGallery(images);
+    const data = await api("/images");
+    images = data.images || [];
+    lastLoaded = Date.now();
+    notifyChanges(images);
+    renderAll();
     clearTimeout(pollTimer);
-    // Con anh PENDING thi tu hoi lai sau 3 giay
-    if (images.some((i) => i.status === "PENDING")) pollTimer = setTimeout(loadImages, 3000);
+    // Con anh PENDING thi tu hoi lai sau 3 giay (toi da ~2 phut)
+    const pending = images.some((i) => i.status === "PENDING");
+    $("live").classList.toggle("hidden", !pending);
+    if (pending && pollCount < 40) { pollCount++; pollTimer = setTimeout(() => loadImages().catch(() => {}), 3000); }
+  }
+
+  function notifyChanges(list) {
+    for (const i of list) {
+      const before = known.get(i.imageId);
+      if (before === "PENDING" && i.status !== "PENDING") {
+        if (i.status === "APPROVED") toast(`Ảnh đã được duyệt: ${i.labels.slice(0, 3).join(", ") || "không có nhãn"}`, "ok");
+        else toast(`Ảnh bị chặn: ${(i.blockedCategories || []).join(", ") || "không hợp lệ"}`, "bad");
+      }
+      known.set(i.imageId, i.status);
+    }
   }
 
   // ---------- UI ----------
   // Dung textContent / createElement (khong innerHTML voi du lieu) -> tranh XSS
-  const STATUS_TEXT = { APPROVED: "Đã duyệt", REJECTED: "Bị chặn", PENDING: "Đang kiểm duyệt" };
+  const STATUS_TEXT = { APPROVED: "Đã duyệt", REJECTED: "Bị chặn", PENDING: "Đang xử lý" };
+  const fmt = (s) => (s ? new Date(s).toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "medium" }) : "–");
+  const secs = (i) => (i.createdAt && i.processedAt ? (new Date(i.processedAt) - new Date(i.createdAt)) / 1000 : null);
 
   function el(tag, className, text) {
     const e = document.createElement(tag);
@@ -157,109 +224,168 @@
     if (text !== undefined) e.textContent = text;
     return e;
   }
+  const badge = (status) => el("span", `badge ${status}`, STATUS_TEXT[status] || status);
 
-  function renderStats(images) {
-    const stats = $("stats");
-    stats.replaceChildren();
-    const count = (s) => images.filter((i) => i.status === s).length;
-    for (const [label, n] of [["Tổng", images.length], ["Đã duyệt", count("APPROVED")], ["Bị chặn", count("REJECTED")]]) {
-      const s = el("span", "stat", `${label} `);
-      s.append(el("strong", "", String(n)));
-      stats.append(s);
+  let filter = "ALL", query = "", sortNew = true;
+
+  function renderAll() { renderStats(); renderChips(); renderGallery(); }
+
+  function renderStats() {
+    const c = (s) => images.filter((i) => i.status === s).length;
+    $("sTotal").textContent = images.length;
+    $("sOk").textContent = c("APPROVED");
+    $("sBad").textContent = c("REJECTED");
+    $("sWait").textContent = c("PENDING");
+    const d = images.map(secs).filter((x) => x !== null && x >= 0 && x < 600);
+    $("sAvg").textContent = d.length ? `${(d.reduce((a, b) => a + b, 0) / d.length).toFixed(1)}s` : "–";
+    $("nALL").textContent = images.length;
+    for (const s of ["APPROVED", "REJECTED", "PENDING"]) $("n" + s).textContent = c(s);
+  }
+
+  // Nhan pho bien nhat trong anh cua chinh nguoi dung (loc tren trinh duyet, khong goi them API)
+  function renderChips() {
+    const freq = new Map();
+    for (const i of images) for (const l of i.labels || []) freq.set(l, (freq.get(l) || 0) + 1);
+    const top = [...freq.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
+    const box = $("chips");
+    box.replaceChildren();
+    if (!top.length) return;
+    box.append(el("span", "lbl", "NHÃN PHỔ BIẾN"));
+    for (const [l, n] of top) {
+      const b = el("button", "chip" + (query.toLowerCase() === l.toLowerCase() ? " on" : ""), `${l} · ${n}`);
+      b.type = "button";
+      b.addEventListener("click", () => { query = query.toLowerCase() === l.toLowerCase() ? "" : l; $("q").value = query; renderChips(); renderGallery(); });
+      box.append(b);
     }
   }
 
-  function renderGallery(images) {
+  function visible() {
+    const q = query.trim().toLowerCase();
+    return images
+      .filter((i) => filter === "ALL" || i.status === filter)
+      .filter((i) => !q || [...(i.labels || []), ...(i.blockedCategories || [])].some((l) => l.toLowerCase().includes(q)))
+      .sort((a, b) => (sortNew ? 1 : -1) * String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+  }
+
+  function renderGallery() {
     const gallery = $("gallery");
     gallery.replaceChildren();
-    renderStats(images);
-    if (!images.length) {
-      gallery.append(el("p", "empty", "Chưa có ảnh nào. Hãy tải ảnh đầu tiên lên."));
-      return;
-    }
-    for (const img of images) {
-      const item = el("div", "item");
+    const list = visible();
+    if (!images.length) { gallery.append(el("p", "empty", "Chưa có ảnh nào. Hãy tải ảnh đầu tiên lên.")); return; }
+    if (!list.length) { gallery.append(el("p", "empty", "Không có ảnh nào khớp bộ lọc.")); return; }
+    for (const img of list) {
+      const item = el("button", "item"); item.type = "button";
+      item.setAttribute("aria-label", `Xem chi tiết ảnh ${STATUS_TEXT[img.status] || ""}`);
       const thumb = el("div", "thumb");
-      if (img.status === "APPROVED" && img.imageUrl) {
-        const pic = el("img");
-        pic.src = img.imageUrl;
-        pic.alt = img.labels.join(", ");
-        pic.loading = "lazy";
-        thumb.append(pic);
-      } else if (img.status === "REJECTED") {
-        thumb.classList.add("blocked");
-        thumb.textContent = `Ảnh bị chặn: ${img.blockedCategories.join(", ") || "không hợp lệ"}`;
-      } else {
-        thumb.classList.add("waiting");
-        thumb.textContent = "Đang kiểm duyệt…";
-      }
-
+      fillPic(thumb, img, true);
       const meta = el("div", "meta");
       const row = el("div", "row");
-      row.append(
-        el("span", `badge ${img.status}`, STATUS_TEXT[img.status] || img.status),
-        el("span", "muted", img.createdAt ? new Date(img.createdAt).toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "short" }) : "")
-      );
+      row.append(badge(img.status), el("span", "time", img.createdAt ? new Date(img.createdAt).toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "short" }) : ""));
       meta.append(row);
-      if (img.labels.length) {
+      if ((img.labels || []).length) {
         const tags = el("div", "tags");
-        for (const l of img.labels) tags.append(el("span", "tag", l));
+        for (const l of img.labels.slice(0, 6)) tags.append(el("span", "tag", l));
+        if (img.labels.length > 6) tags.append(el("span", "tag", `+${img.labels.length - 6}`));
         meta.append(tags);
       }
       item.append(thumb, meta);
+      item.addEventListener("click", () => openModal(img.imageId));
       gallery.append(item);
     }
   }
 
-  // Xem truoc anh da chon trong o keo tha (URL.createObjectURL: anh chi nam tren may nguoi dung)
-  let previewUrl = null;
-  function showSelected(file) {
-    const icon = $("dropIcon");
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    previewUrl = null;
-    if (!file) {
-      $("fileName").textContent = "Chọn hoặc kéo thả ảnh vào đây";
-      return;
-    }
-    $("fileName").textContent = file.name;
-    if (file.type === "image/jpeg") {
-      previewUrl = URL.createObjectURL(file);
-      const pic = el("img");
-      pic.src = previewUrl;
-      pic.alt = "";
-      icon.replaceChildren(pic);
+  function fillPic(box, img, lazy) {
+    box.replaceChildren(); box.classList.remove("blocked", "waiting");
+    if (img.status === "APPROVED" && img.imageUrl) {
+      const pic = el("img"); pic.src = img.imageUrl; pic.alt = (img.labels || []).join(", ");
+      if (lazy) pic.loading = "lazy";
+      box.append(pic);
+    } else if (img.status === "REJECTED") {
+      box.classList.add("blocked");
+      box.textContent = `Ảnh bị chặn: ${(img.blockedCategories || []).join(", ") || "không hợp lệ"}`;
+    } else {
+      box.classList.add("waiting");
+      box.textContent = "Đang kiểm duyệt…";
     }
   }
-  const defaultIcon = $("dropIcon").cloneNode(true).childNodes;
-  const resetIcon = () => $("dropIcon").replaceChildren(...[...defaultIcon].map((n) => n.cloneNode(true)));
+
+  // ---------- Chi tiet anh ----------
+  let current = null;
+  async function openModal(id) {
+    // Presigned URL het han sau 5 phut: du lieu cu hon 4 phut thi tai lai truoc khi mo
+    if (Date.now() - lastLoaded > 240000) await loadImages().catch(() => {});
+    const img = images.find((i) => i.imageId === id);
+    if (!img) return;
+    current = img;
+    $("mBadge").replaceChildren(badge(img.status));
+    fillPic($("mPic"), img, false);
+    $("mCreated").textContent = fmt(img.createdAt);
+    $("mProcessed").textContent = fmt(img.processedAt);
+    const s = secs(img);
+    $("mDuration").textContent = s === null ? "–" : `${s.toFixed(1)} giây`;
+    $("mId").textContent = img.imageId;
+    const blocked = img.status === "REJECTED";
+    const list = blocked ? img.blockedCategories || [] : img.labels || [];
+    $("mTagsTitle").textContent = blocked ? "Danh mục vi phạm" : "Nhãn";
+    $("mTags").replaceChildren(...(list.length ? list.map((l) => el("span", "tag", l)) : [el("span", "muted", "Chưa có")]));
+    $("copyLabels").classList.toggle("hidden", !list.length);
+    $("modal").showModal();
+  }
+  async function copy(text, label) {
+    try { await navigator.clipboard.writeText(text); toast(`Đã sao chép ${label}`); }
+    catch { toast("Trình duyệt không cho phép sao chép", "bad"); }
+  }
+
+  function toast(text, kind) {
+    const t = el("div", "toast " + (kind || ""), text);
+    $("toasts").append(t);
+    setTimeout(() => t.remove(), 4500);
+  }
 
   function showMessage(text, isError = false) {
-    const el = $("message");
-    el.textContent = text;
-    el.style.color = isError ? "var(--bad)" : "var(--muted)";
+    const m = $("message");
+    m.textContent = text;
+    m.style.color = isError ? "var(--bad)" : "var(--muted)";
   }
 
   function render() {
     const t = currentToken();
     $("guest").classList.toggle("hidden", !!t);
     $("app").classList.toggle("hidden", !t);
+    $("nav").classList.toggle("hidden", !t);
     $("loginBtn").classList.toggle("hidden", !!t);
     $("logoutBtn").classList.toggle("hidden", !t);
     $("user").textContent = t ? emailFromIdToken(t.id_token) : "";
   }
 
-  $("fileInput").addEventListener("change", (e) => {
-    resetIcon();
-    showSelected(e.target.files[0] || null);
-  });
+  // ---------- Su kien ----------
+  $("fileInput").addEventListener("change", (e) => { addFiles([...e.target.files]); e.target.value = ""; });
   const drop = $("drop");
   ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, () => drop.classList.add("over")));
   ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, () => drop.classList.remove("over")));
 
   $("loginBtn").addEventListener("click", login);
+  $("heroLogin").addEventListener("click", login);
   $("logoutBtn").addEventListener("click", logout);
   $("uploadBtn").addEventListener("click", upload);
-  $("refreshBtn").addEventListener("click", () => loadImages().catch((e) => showMessage(e.message, true)));
+  $("clearBtn").addEventListener("click", clearQueue);
+  $("refreshBtn").addEventListener("click", () => { pollCount = 0; loadImages().catch((e) => showMessage(e.message, true)); });
+  $("tabs").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-f]"); if (!b) return;
+    filter = b.dataset.f;
+    [...$("tabs").children].forEach((x) => x.classList.toggle("on", x === b));
+    renderGallery();
+  });
+  $("q").addEventListener("input", (e) => { query = e.target.value; renderChips(); renderGallery(); });
+  $("sort").addEventListener("change", (e) => { sortNew = e.target.value === "new"; renderGallery(); });
+  $("closeModal").addEventListener("click", () => $("modal").close());
+  $("modal").addEventListener("click", (e) => { if (e.target === $("modal")) $("modal").close(); });
+  $("copyId").addEventListener("click", () => current && copy(current.imageId, "Image ID"));
+  $("copyLabels").addEventListener("click", () => {
+    if (!current) return;
+    const list = current.status === "REJECTED" ? current.blockedCategories : current.labels;
+    copy((list || []).join(", "), "nhãn");
+  });
 
   (async () => {
     await handleCallback();

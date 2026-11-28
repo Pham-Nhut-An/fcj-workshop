@@ -17,7 +17,7 @@ pre: " <b> 5.5. </b> "
 | Key lạ | Upload file không có item PENDING | Không tạo item mới, không gửi email |
 | DLQ | Đổi `TABLE_NAME` sai rồi gọi Lambda bất đồng bộ | Sau 2 lần retry, DLQ có message `RetriesExhausted`, `approximateInvokeCount: 3` |
 
-![Gallery: ảnh APPROVED và REJECTED](../../../images/5-workshop/26-4-web-gallery-v2.jpg)
+![Gallery: ảnh APPROVED và REJECTED](../../../images/5-workshop/26-6-web-library-dark.jpg)
 
 {{% notice note %}}
 **False positive:** súng đồ chơi bằng gỗ bị nhận là *Violence/Weapons* với độ tin cậy ~97%. Hướng cải thiện: tăng `MIN_MODERATION_CONFIDENCE` cho danh mục cụ thể, hoặc thêm bước quản trị viên duyệt lại ảnh `REJECTED`.
@@ -80,6 +80,21 @@ Hai tỉ lệ trên tính trên **12 ảnh**: 2 ảnh thử ban đầu và 10 �
 ![HTTP chuyển HTTPS và presigned URL hết hạn](../../../images/5-workshop/27-4-https-redirect-presigned-expired.jpg)
 
 Web được phục vụ từ edge **SGN (TP.HCM)** của CloudFront, nên người dùng Việt Nam vẫn tải nhanh dù backend ở us-east-1.
+
+## Kiểm thử kịch bản lỗi
+
+Chạy script [`error_test.sh`](/fcj-workshop/code/imageguard/scripts/error_test.sh) trong CloudShell (ngày 28/11/2026). Các test E1–E3 gọi thẳng Lambda `imageguard-presign-upload` bằng `aws lambda invoke` với dữ liệu sai; E4 gửi 100 request song song tới API; E5 tải lên một file văn bản đặt đuôi `.jpg`.
+
+| # | Kịch bản | Kết quả mong đợi | Kết quả thực tế |
+|---|---|---|---|
+| E1 | Yêu cầu URL upload với `contentType: image/png` | Từ chối 400 | ✅ `400` – "Chi chap nhan image/jpeg" |
+| E2 | Body không phải JSON | Từ chối 400 | ✅ `400` – "Body phai la JSON" |
+| E3 | Không có JWT (thiếu `sub`) | Từ chối 401 | ✅ `401` – "Unauthorized" |
+| E4 | 100 request song song `GET /images` không có token | Bị chặn, không chạm tới Lambda | ✅ 100/100 trả `401` ngay ở JWT Authorizer, Lambda không bị gọi nên không phát sinh chi phí. Giới hạn 10 request/giây (burst 20) không bị kích hoạt trong test này; chưa kiểm thử với request có token |
+| E5 | File văn bản đổi tên thành `.jpg` | Không treo ở `PENDING`, không làm Lambda lỗi | ✅ Item chuyển `REJECTED` với lý do `INVALID_IMAGE:InvalidImageFormatException`; Lambda kết thúc bình thường nên không có message nào vào DLQ |
+
+![Kết quả 5 test kịch bản lỗi trong CloudShell](../../../images/5-workshop/30-1-error-cases.jpg)
+*Hình: Kết quả chạy `error_test.sh` – E1, E2 trả 400; E3 và E4 trả 401; E5 ảnh không hợp lệ bị đánh dấu REJECTED*
 
 ## Xử lý sự cố đã gặp
 

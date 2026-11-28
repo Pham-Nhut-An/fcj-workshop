@@ -15,20 +15,20 @@ In terms of work ethic, I tried to complete assigned tasks, followed the office 
 
 To reflect objectively on my internship, I evaluate myself on the following criteria:
 
-| No. | Criteria | Description | Good | Fair | Average |
-| --- | --- | --- | --- | --- | --- |
-| 1 | **Professional knowledge & skills** | Understanding of the field, applying knowledge in practice, proficiency with tools, work quality | ☐ | ✅ | ☐ |
-| 2 | **Ability to learn** | Absorbing new knowledge and learning quickly | ☐ | ✅ | ☐ |
-| 3 | **Proactiveness** | Taking initiative, seeking tasks without waiting for instructions | ✅ | ☐ | ☐ |
-| 4 | **Sense of responsibility** | Completing tasks on time and ensuring quality | ✅ | ☐ | ☐ |
-| 5 | **Discipline** | Following schedules, rules and work processes | ✅ | ☐ | ☐ |
-| 6 | **Progressive mindset** | Willingness to receive feedback and improve | ✅ | ☐ | ☐ |
-| 7 | **Communication** | Presenting ideas and reporting work clearly | ☐ | ✅ | ☐ |
-| 8 | **Teamwork** | Working effectively with colleagues and in teams | ✅ | ☐ | ☐ |
-| 9 | **Professional conduct** | Respecting colleagues, partners and the work environment | ✅ | ☐ | ☐ |
-| 10 | **Problem-solving skills** | Identifying problems, proposing solutions, creativity | ✅ | ☐ | ☐ |
-| 11 | **Contribution to project/team** | Work effectiveness, improvement ideas, recognition from the team | ✅ | ☐ | ☐ |
-| 12 | **Overall** | General evaluation of the whole internship | ☐ | ✅ | ☐ |
+| No. | Criteria | Description | Good | Fair | Average | Comment |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | **Professional knowledge & skills** | Understanding of the field, applying knowledge in practice, proficiency with tools, work quality | ☐ | ✅ | ☐ | I understand the services used in the workshop (S3, Lambda, DynamoDB, API Gateway, Cognito, CloudFront, CloudWatch, Rekognition). Many labs in weeks 1–6 were studied in theory only. |
+| 2 | **Self-learning & research** | Absorbing new knowledge and learning quickly | ☐ | ✅ | ☐ | I read the AWS documentation myself to switch from Amazon Bedrock to Amazon Rekognition. Some weeks were uneven; early week 10 I did almost nothing. |
+| 3 | **Proactiveness** | Taking initiative, seeking tasks without waiting for instructions | ✅ | ☐ | ☐ | I found an alternative when the Bedrock quota increase was denied, and added security tests and a 10-image batch test on my own. |
+| 4 | **Sense of responsibility** | Completing tasks on time and ensuring quality | ✅ | ☐ | ☐ | I finished deployment, testing and documentation before the 30/11 deadline, and only marked ✅ what was verified on the live system. |
+| 5 | **Discipline & compliance** | Following schedules, rules and work processes | ✅ | ☐ | ☐ | I follow the office rules and keep the worklog true to reality, including weeks with little progress. |
+| 6 | **Progressive mindset** | Willingness to receive feedback and improve | ✅ | ☐ | ☐ | I reported unmet criteria honestly (67% blocked, 12.5% false positives) with improvements, and revised the report against the rubric and feedback. |
+| 7 | **Communication** | Presenting ideas and reporting work clearly | ☐ | ✅ | ☐ | I can discuss with the team and the mentor; I need to practise explaining the architecture more concisely. |
+| 8 | **Teamwork** | Working effectively with colleagues and in teams | ✅ | ☐ | ☐ | Our 5-member team agreed on one shared topic and shares the Proposal, Workshop and 3 blog posts. |
+| 9 | **Professional conduct** | Respecting colleagues, partners and the work environment | ✅ | ☐ | ☐ | I respect the rules and the shared workspace, and communicate politely with the team and mentor. |
+| 10 | **Problem solving** | Identifying problems, proposing solutions, creativity | ✅ | ☐ | ☐ | I found and fixed deployment issues: a wrong ARN in an IAM policy, an alert sent before the result was saved, SNS encryption blocking alarm emails, a Hugo build error. |
+| 11 | **Contribution to the workshop** | Work effectiveness, improvement ideas, recognition from the team | ✅ | ☐ | ☐ | I deployed ImageGuard on my AWS account, wrote the bilingual workshop guide and prepared the team submission files. |
+| 12 | **Overall** | General evaluation of the whole internship | ☐ | ✅ | ☐ | I delivered a working workshop with full documentation, but studied unevenly at the start and have not attended 3 events yet. |
 
 ### Needs Improvement
 

@@ -21,6 +21,11 @@ pre: " <b> 2. </b> "
 
 Results are stored in **Amazon DynamoDB** and shown in the web UI within seconds. The whole system follows an **event-driven**, **serverless** architecture: there are no servers to manage, and the team pays only for actual usage.
 
+**Target users:**
+- **End users:** members of a classifieds site, forum or student club who upload images and view their own images.
+- **Platform administrators:** people responsible for content moderation, who receive an email alert when an image violates the rules.
+- **Operations team:** monitors the system through the CloudWatch dashboard and alarms.
+
 ## 2. Problem Statement
 
 - Platforms that let users post images (classified ads, forums, community groups) receive many images every day. **Manual review** is labor-intensive and slow, and it exposes reviewers directly to harmful content.
@@ -219,3 +224,12 @@ During development and the demo (fewer than 300 images expected), Rekognition co
 - A monitoring setup with a CloudWatch dashboard, alarms and email alerts.
 - A bilingual workshop guide that can be reproduced from scratch, including testing, troubleshooting and clean-up.
 - Hands-on skills for the team: event-driven serverless architecture, IAM least privilege, AWS AI services, monitoring and cost optimization, and how to adapt when a service is quota-restricted.
+
+## 9. Future Work
+
+- **Better moderation accuracy:** per-category thresholds (for example a lower threshold for `Drugs & Tobacco` so smoking images are not missed), re-measured on a 20–50 image test set.
+- **Admin review step:** `REJECTED` images go to a queue for an administrator to confirm, reducing the impact of false positives (for example toy guns).
+- **Search and filter images by label, PNG support**, and a public feed for approved images.
+- **Infrastructure as Code:** move the CLI scripts to AWS SAM or CloudFormation and add CI/CD for automatic redeployment.
+- **Extra edge protection:** attach AWS WAF to CloudFront once there is real traffic.
+- **Deployment for Vietnamese users:** move to Region ap-southeast-1 (Singapore) for lower latency and personal-data rules.

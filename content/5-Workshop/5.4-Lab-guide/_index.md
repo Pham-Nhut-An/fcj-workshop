@@ -227,7 +227,7 @@ Create 2 dedicated roles (least privilege), then 2 Python 3.12 arm64 functions, 
 2. **CloudFront → Create distribution**: S3 web bucket origin with **OAC**, Redirect HTTP to HTTPS, CachingOptimized, response headers **SecurityHeadersPolicy**, default root object `index.html`, WAF off.
 3. Bucket policy allows only `cloudfront.amazonaws.com` with `AWS:SourceArn` = the distribution ARN.
 
-![Figure 3.2 – ImageGuard served through CloudFront](../../images/5-workshop/21-5-web-first-load-v2.jpg)
+![Figure 3.2 – ImageGuard served through CloudFront](../../images/5-workshop/21-6-web-home-dark.jpg)
 *Figure 3.2 – ImageGuard served through CloudFront*
 
 
@@ -248,8 +248,13 @@ User pool `imageguard-users`, **email** sign-in, self sign-up enabled. App clien
 - CORS on the image bucket: allow `PUT, GET` from the CloudFront domain.
 - Fill in `config.js` (Cognito domain, client ID, redirect URI, API URL), upload it again, create a CloudFront invalidation for `/*`.
 
-![Figure 3.4 – End result: the user signs in, uploads images and sees APPROVED / REJECTED](../../images/5-workshop/26-4-web-gallery-v2.jpg)
-*Figure 3.4 – End result: the user signs in, uploads images and sees APPROVED / REJECTED*
+![Figure 3.4 – End result: the user signs in, uploads images and sees APPROVED / REJECTED](../../images/5-workshop/26-5-web-dashboard-dark.jpg)
+*Figure 3.4 – End result: statistics, multi-image upload, and a library with status filters and label search*
+
+![Figure 3.5 – Image detail dialog](../../images/5-workshop/26-7-web-detail-dark.jpg)
+*Figure 3.5 – Image detail dialog: labels, upload / processed time, Image ID*
+
+> **UI features** (status filter, label search, sorting, popular labels, statistics, detail view, multi-image upload, JPEG magic-byte check) all run in the browser on the data returned by `GET /images`; no new API or service is needed, so the architecture is unchanged.
 
 
 ## Step 4 – Monitoring

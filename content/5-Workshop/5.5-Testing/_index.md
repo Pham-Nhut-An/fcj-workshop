@@ -17,7 +17,7 @@ pre: " <b> 5.5. </b> "
 | Unknown key | Upload a file with no PENDING item | No new item, no email |
 | DLQ | Set a wrong `TABLE_NAME`, invoke asynchronously | After 2 retries the DLQ holds a `RetriesExhausted` message, `approximateInvokeCount: 3` |
 
-![Gallery: APPROVED and REJECTED images](../../images/5-workshop/26-4-web-gallery-v2.jpg)
+![Gallery: APPROVED and REJECTED images](../../images/5-workshop/26-6-web-library-dark.jpg)
 
 {{% notice note %}}
 **False positive:** a wooden toy gun is detected as *Violence/Weapons* with ~97% confidence. Improvements: raise `MIN_MODERATION_CONFIDENCE` for specific categories, or add an admin review step for `REJECTED` images.
@@ -80,6 +80,21 @@ Both rates are measured on **12 images**: the 2 initial test images plus 10 imag
 ![HTTP to HTTPS redirect and expired presigned URL](../../images/5-workshop/27-4-https-redirect-presigned-expired.jpg)
 
 The site is served from CloudFront's **SGN (Ho Chi Minh City)** edge, so Vietnamese users get fast loads even though the backend runs in us-east-1.
+
+## Error-case tests
+
+Run the [`error_test.sh`](/fcj-workshop/code/imageguard/scripts/error_test.sh) script in CloudShell (28/11/2026). Tests E1–E3 invoke the `imageguard-presign-upload` Lambda directly with `aws lambda invoke` and bad input; E4 sends 100 parallel requests to the API; E5 uploads a text file renamed to `.jpg`.
+
+| # | Scenario | Expected | Actual result |
+|---|---|---|---|
+| E1 | Request an upload URL with `contentType: image/png` | Rejected with 400 | ✅ `400` – "Chi chap nhan image/jpeg" (JPEG only) |
+| E2 | Body is not JSON | Rejected with 400 | ✅ `400` – "Body phai la JSON" (body must be JSON) |
+| E3 | No JWT (missing `sub`) | Rejected with 401 | ✅ `401` – "Unauthorized" |
+| E4 | 100 parallel `GET /images` requests without a token | Blocked before reaching Lambda | ✅ 100/100 returned `401` at the JWT Authorizer; Lambda was never invoked, so no cost. The 10 requests/second limit (burst 20) was not triggered in this test; not yet tested with authenticated requests |
+| E5 | Text file renamed to `.jpg` | Not stuck in `PENDING`, Lambda does not crash | ✅ The item became `REJECTED` with reason `INVALID_IMAGE:InvalidImageFormatException`; the Lambda finished normally, so nothing went to the DLQ |
+
+![Results of the 5 error-case tests in CloudShell](../../../images/5-workshop/30-1-error-cases.jpg)
+*Figure: `error_test.sh` output – E1, E2 return 400; E3 and E4 return 401; E5 the invalid image is marked REJECTED*
 
 ## Troubleshooting
 
